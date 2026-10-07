@@ -68,7 +68,7 @@
       libEyebrow: "ספרייה", libTitle: "כל המצגות לפי נושא", libFilter: "סינון לפי שם מצגת", libNone: "אין מצגות שמתאימות לסינון.",
       aboutEyebrow: "אודות", aboutPubs: "פרסומים", aboutContact: "יצירת קשר",
       home: "ראשי", workshop: "סדנה", session: "מפגש", of: "מתוך",
-      noVideo: "ללא הקלטה", noDeck: "ללא מצגת", done: "הושלם",
+      noVideo: "ללא הקלטה", noDeck: "ללא מצגת", done: "הושלם", recHidden: "ההקלטה אינה זמינה כרגע", recHiddenChip: "הקלטה לא זמינה כרגע",
       learnTitle: "בסוף תדעו", tabRec: "הקלטה", tabDeck: "מצגת", tabFiles: "חומרים",
       openYT: "צפייה ביוטיוב", openDrive: "פתיחה בדרייב", fullscreen: "פתיחה במסך מלא",
       noVideoText: (u) => `ל${u} הזה אין הקלטה.`, noDeckText: (u) => `ל${u} הזה עדיין לא צורפה מצגת.`,
@@ -82,7 +82,7 @@
       stepHead: (u, i, n, m) => `${u} · צעד ${i} מתוך ${n} · כ-${m} דק'`,
       finishNext: "סיימתי · לצעד הבא ←", finishLast: "סיימתי את המסלול", notYet: "עוד לא, אחזור לזה אחר כך", backToPath: "→ המסלול שלי",
       moreFrom: (t) => `עוד מ-${t}`, partOf: "מופיע בסדנה", moreInTopic: "עוד בנושא",
-      kind: { rec: "הקלטת סדנה", recSession: "הקלטת מפגש", video: "סרטון קצר", deck: "מצגת לעיון" },
+      kind: { rec: "הקלטת סדנה", recSession: "הקלטת מפגש", materials: "מצגת וחומרים", video: "סרטון קצר", deck: "מצגת לעיון" },
       mins: (m) => `${m} דק'`,
       enNotice: "", footerYT: "ערוץ היוטיוב",
     },
@@ -134,7 +134,7 @@
       libEyebrow: "Library", libTitle: "All slide decks by topic", libFilter: "Filter by title", libNone: "No decks match the filter.",
       aboutEyebrow: "About", aboutPubs: "Publications", aboutContact: "Contact",
       home: "Home", workshop: "workshop", session: "session", of: "of",
-      noVideo: "No recording", noDeck: "No slides", done: "Done",
+      noVideo: "No recording", noDeck: "No slides", done: "Done", recHidden: "The recording is not available at the moment.", recHiddenChip: "Recording unavailable",
       learnTitle: "You will learn", tabRec: "Recording", tabDeck: "Slides", tabFiles: "Materials",
       openYT: "Watch on YouTube", openDrive: "Open in Drive", fullscreen: "Open full screen",
       noVideoText: () => "There is no recording for this item.", noDeckText: () => "No slides have been added yet.",
@@ -148,7 +148,7 @@
       stepHead: (u, i, n, m) => `${u} · step ${i} of ${n} · ~${m} min`,
       finishNext: "Done · next step →", finishLast: "I finished the path", notYet: "Not yet, I'll come back later", backToPath: "← My path",
       moreFrom: (t) => `More from ${t}`, partOf: "Part of", moreInTopic: "More on this topic",
-      kind: { rec: "Workshop recording", recSession: "Session recording", video: "Short video", deck: "Slides" },
+      kind: { rec: "Workshop recording", recSession: "Session recording", materials: "Slides and materials", video: "Short video", deck: "Slides" },
       mins: (m) => `${m} min`,
       enNotice: "English version in preparation: some content still appears in Hebrew.", footerYT: "YouTube channel",
     },
@@ -220,7 +220,7 @@
     const w = lessons.find((x) => x.id === ref);
     if (!w) return null;
     const mins = w.video?.dur ? toMinutes(w.video.dur) : w.video ? 75 : 10;
-    return { ref, title: L(w, "title"), href: `#${w.id}`, kind: sectionOf(w) === "data" ? t().kind.recSession : t().kind.rec, mins, type: "lesson", highlights: !!w.chapters?.length };
+    return { ref, title: L(w, "title"), href: `#${w.id}`, kind: !w.video ? t().kind.materials : sectionOf(w) === "data" ? t().kind.recSession : t().kind.rec, mins, type: "lesson", highlights: !!w.chapters?.length };
   }
 
   // the path: stages → steps → units sized to the learner's weekly time
@@ -284,7 +284,7 @@
     `<nav class="crumbs" aria-label="breadcrumbs"><a href="#">${t().home}</a>${items.map(([href, label]) => `<span aria-hidden="true">›</span><a href="${href}">${esc(label)}</a>`).join("")}</nav>`;
   const missingChips = (w) => {
     const c = [];
-    if (!w.video) c.push(`<span class="chip chip--off">${t().noVideo}</span>`);
+    if (!w.video) c.push(`<span class="chip chip--off">${w.recording === "hidden" ? t().recHiddenChip : t().noVideo}</span>`);
     if (!w.gamma && !w.pdf) c.push(`<span class="chip chip--off">${t().noDeck}</span>`);
     return c.length ? `<span class="chips">${c.join("")}</span>` : "";
   };
@@ -653,7 +653,7 @@
       t().tabRec,
       w.video
         ? `<div class="panel__head"><span></span><a href="${w.video.drive ? driveView(w.video.drive) : ytWatch(w.video.id)}" target="_blank" rel="noopener">${w.video.drive ? t().openDrive : t().openYT}</a></div>${player(w.video, unit + " " + (i + 1), L(w, "title"))}`
-        : `<p class="empty">${t().noVideoText(unit)}</p>`,
+        : `<p class="empty">${w.recording === "hidden" ? t().recHidden : t().noVideoText(unit)}</p>`,
     ]);
     tabs.push([
       "deck",
