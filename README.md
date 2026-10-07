@@ -33,3 +33,16 @@ node serve.mjs
 
 ## העלאה לאוויר
 אפשר לגרור את התיקייה כמו שהיא ל-Netlify Drop (app.netlify.com/drop) או לחבר ל-Vercel / GitHub Pages.
+
+## האתר באוויר
+- כתובת: https://coldgoblin.github.io/ai-teaching-college/
+- מאגר: https://github.com/ColdGoblin/ai-teaching-college (GitHub Pages מענף `main`, תיקיית השורש)
+
+### פרסום עדכון
+מתוך התיקייה `site`:
+```
+git add -A
+git commit -m "תיאור השינוי"
+git push
+```
+תוך כדקה האתר מתעדכן.
