@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>המכללה לבינה מלאכותית בהוראה | עידן שביט</title>
+  <meta name="description" content="מסלול מלווה ללמידת בינה מלאכותית בהוראה: סדנאות הכשרת הסגל במכללת קיי, השתלמויות למורים ותרגול על הקורס שלכם.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=David+Libre:wght@400;500;700&family=Frank+Ruhl+Libre:wght@500;700;900&display=swap">
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/college.css">
+</head>
+<body>
+  <a class="skip" href="#app">דילוג לתוכן</a>
+  <div class="sheet">
+    <header class="masthead">
+      <div class="wrap">
+        <div class="topline">
+          <span class="founded">נוסד ב־MMXXIII · שנת הצ׳אט</span>
+          <div class="search" role="search">
+            <label class="sr" for="q" id="q-label"></label>
+            <input id="q" type="search" autocomplete="off" spellcheck="false">
+            <div class="search__results" id="q-results" hidden></div>
+          </div>
+          <div class="topbar__tools">
+            <button type="button" class="lang" id="lang"></button>
+            <button type="button" class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="nav">
+              <span aria-hidden="true">☰</span><span class="sr" id="menu-label"></span>
+            </button>
+          </div>
+        </div>
+
+        <a class="crest" href="#">
+          <span class="crest__seal" aria-hidden="true"><span>AI</span></span>
+          <span class="crest__name" id="brand-name"></span>
+          <span class="crest__motto" lang="la">Docendo · Discimus · Cum · Machina</span>
+        </a>
+
+        <nav class="nav" id="nav"></nav>
+      </div>
+    </header>
+
+    <main id="app" class="wrap" tabindex="-1"></main>
+
+    <footer class="footer">
+      <div class="wrap footer__in" id="footer"></div>
+    </footer>
+  </div>
+
+  <script src="assets/data.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
