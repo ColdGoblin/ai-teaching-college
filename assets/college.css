@@ -204,3 +204,12 @@ a { color: var(--navy); }
 /* what "enrol" means */
 .hero__note { margin: 0; font-size: 1rem !important; color: var(--muted) !important; max-width: 32rem; padding-inline-start: 14px; border-inline-start: 2px solid var(--gold); }
 .onboard__intro { margin: -6px 0 0; text-align: center; color: var(--muted-2); font-size: 1.08rem; }
+
+/* multi-select topics */
+.onboard .choices--goals .choice[aria-pressed="true"] .choice__num { color: var(--gold-soft); }
+.onboard [data-goals-next] { margin-top: 18px; }
+.onboard [data-goals-next]:disabled { opacity: .45; cursor: not-allowed; }
+/* publications */
+.pubs li { margin-bottom: .6em; }
+.pubs__venue { display: block; color: var(--muted, #5a5446); font-size: .95em; font-style: italic; }
+.pubs a { font-size: .92em; margin-inline-start: .3em; }

@@ -45,12 +45,15 @@
       how: [["עונים על שלוש שאלות", "רמה, נושא, וכמה זמן יש לכם בשבוע."], ["לומדים ביחידות קצרות", "בכל פעם יחידה אחת, בגודל שמתאים לזמן שלכם."], ["מתרגלים על הקורס שלכם", "בכל צעד משימה קטנה של 5 דקות."]],
       qCount: (i, n) => `שאלה ${ROMAN[i - 1]} מתוך ${ROMAN[n - 1]}`, back: "חזרה", exam: "בחינת קבלה",
       q: ["מה רמת הניסיון שלך עם בינה מלאכותית?", "מה הכי חשוב לך ללמוד?", "כמה זמן יש לך ללמידה בשבוע?"],
+      multiHint: "אפשר לבחור נושא אחד או כמה. המסלול יחבר ביניהם בלי לחזור על אותו חומר פעמיים.",
+      goalsNext: (n) => n ? (n === 1 ? "המשך עם נושא אחד ←" : `המשך עם ${n} נושאים ←`) : "בחרו לפחות נושא אחד",
+      pubRead: "לקריאת המאמר", pubSite: "להרצאה באתר",
       ready: "המסלול שלך מוכן", start: "נתחיל", continueBtn: "להמשיך", fullPath: "למסלול המלא", changePath: "לבנות מסלול אחר",
       pathSummary: (units, per, weeks) => `${units} יחידות · עד כ-${per} דק' כל אחת · בקצב שבחרתם כ-${weeks} שבועות`,
       unit: (n) => `יחידה ${n}`, unitDone: "הושלמה", optional: "לא חובה",
       nextTitle: "הצעד הבא שלך", hello: "ברוכים השבים",
       unitsProgress: (a, b) => `${a} מתוך ${b} יחידות הושלמו`,
-      allDoneTitle: "סיימתם את המסלול!", allDoneText: "כל הכבוד. אפשר לבחור נושא נוסף, וההתקדמות שלכם נשמרת.", otherGoal: "נושא נוסף:",
+      allDoneTitle: "סיימתם את המסלול!", allDoneText: "כל הכבוד. אפשר להוסיף נושא למסלול, וההתקדמות שלכם נשמרת.", otherGoal: "להוסיף נושא:",
       unitDoneToast: (n) => `כל הכבוד! סיימתם את יחידה ${n}.`, pathDoneToast: "כל הכבוד! סיימתם את כל המסלול.",
       exploreTitle: "לחקור עוד", exploreIntro: "כל החומרים באתר, למי שרוצה לדפדף בעצמו.",
       cards: {
@@ -111,6 +114,9 @@
       how: [["Answer three questions", "Your level, topic and weekly time."], ["Learn in short units", "One unit at a time, sized to your time."], ["Practise on your own course", "A 5-minute task at every step."]],
       qCount: (i, n) => `Question ${ROMAN[i - 1]} of ${ROMAN[n - 1]}`, back: "Back", exam: "Entrance exam",
       q: ["How much experience do you have with AI?", "What do you most want to learn?", "How much time do you have each week?"],
+      multiHint: "Pick one topic or several. The path combines them without repeating material.",
+      goalsNext: (n) => n ? (n === 1 ? "Continue with one topic →" : `Continue with ${n} topics →`) : "Pick at least one topic",
+      pubRead: "Read the article", pubSite: "Talk on this site",
       ready: "Your path is ready", start: "Start", continueBtn: "Continue", fullPath: "Full path", changePath: "Build a different path",
       pathSummary: (units, per, weeks) => `${units} units · up to ~${per} min each · about ${weeks} weeks at your pace`,
       unit: (n) => `Unit ${n}`, unitDone: "Done", optional: "Optional",
@@ -197,9 +203,14 @@
 
   // ---------- learner state ----------
   // refs: lesson id ("w3"), "v:<youtube id>", "g:<gamma id>"
-  let journey = { level: null, goal: null, pace: null, done: [], ...store.get("journey-v1", {}) };
-  const saveJourney = () => store.set("journey-v1", journey);
-  const hasPath = () => !!(journey.level && journey.goal && journey.pace);
+  let journey = { level: null, goal: null, goals: [], pace: null, done: [], ...store.get("journey-v1", {}) };
+  if (!Array.isArray(journey.goals)) journey.goals = [];
+  if (journey.goal && !journey.goals.length) journey.goals = [journey.goal]; // older single-topic paths
+  const saveJourney = () => { journey.goal = journey.goals[0] || null; store.set("journey-v1", journey); };
+  const hasPath = () => !!(journey.level && journey.goals.length && journey.pace);
+  const myGoals = () => journey.goals.map((id) => J.goals.find((x) => x.id === id)).filter(Boolean);
+  const goalLabels = () => myGoals().map((g) => L(g, "label")).join(" · ");
+  let goalPick = null; // topics being picked in the onboarding (several allowed)
   const isDone = (ref) => journey.done.includes(ref);
   const setDone = (ref, on) => {
     journey.done = on ? [...new Set([...journey.done, ref])] : journey.done.filter((r) => r !== ref);
@@ -225,15 +236,20 @@
 
   // the path: stages → steps → units sized to the learner's weekly time
   function pathStages() {
-    const g = J.goals.find((x) => x.id === journey.goal);
-    if (!g) return [];
-    const st = (key, refs, optional = false) => ({ key, refs, optional });
+    const gs = myGoals();
+    if (!gs.length) return [];
+    // several topics: their steps are merged stage by stage, without repeats
+    const seen = new Set();
+    const pick = (refs) => refs.filter((r) => !seen.has(r) && seen.add(r));
+    const all = (k) => gs.flatMap((g) => g[k] || []);
+    const st = (key, refs, optional = false) => ({ key, refs: pick(refs), optional });
     const stages =
       journey.level === "beginner"
-        ? [st("foundations", J.foundations), st("extra", J.foundationsExtra || [], true), st("core", g.core), st("responsibility", J.responsibility)]
+        ? [st("foundations", J.foundations), st("extra", J.foundationsExtra || [], true), st("core", all("core")), st("responsibility", J.responsibility)]
         : journey.level === "intermediate"
-        ? [st("core", g.core), st("deeper", g.deeper), st("responsibility", J.responsibility)]
-        : [st("core", g.core), st("deeper", g.deeper), st("advanced", g.advanced)];
+        ? [st("core", all("core")), st("deeper", all("deeper")), st("responsibility", J.responsibility)]
+        : [st("core", all("core")), st("deeper", all("deeper")), st("advanced", all("advanced"))];
+    stages.push(st("bonus", all("bonus"), true));
     return stages.map((s) => ({ ...s, items: s.refs.map(resolveRef).filter(Boolean) }));
   }
   function pathSteps() {
@@ -265,10 +281,7 @@
     return { step, unit, index: req.findIndex((s) => s.ref === ref) + 1, total: req.length };
   }
   const whyFor = (stageKey) => {
-    if (stageKey === "core") {
-      const g = J.goals.find((x) => x.id === journey.goal);
-      return `${J.stageWhy.core}: ${L(g, "label")}.`;
-    }
+    if (stageKey === "core") return `${J.stageWhy.core}: ${goalLabels()}.`;
     return J.stageWhy[stageKey] || "";
   };
   function taskFor(ref) {
@@ -454,8 +467,10 @@
       ["goal", J.goals.map((o) => ({ id: o.id, label: L(o, "label") }))],
       ["pace", J.paces.map((o) => ({ id: o.id, label: L(o, "label"), hint: L(o, "hint") }))],
     ];
-    const i = !journey.level ? 0 : !journey.goal ? 1 : 2;
+    const i = !journey.level ? 0 : !journey.goals.length ? 1 : 2;
     const [key, opts] = steps[i];
+    const multi = key === "goal";
+    if (multi && !goalPick) goalPick = [];
     return `
       <section class="onboard" aria-live="polite">
         <div class="onboard__top">
@@ -464,14 +479,21 @@
         </div>
         <h1><span class="exam">${t().exam}:</span> ${t().q[i]}</h1>
         ${i === 0 ? `<p class="onboard__intro">${t().examIntro}</p>` : ""}
-        <div class="choices ${key === "goal" ? "choices--goals" : "choices--arch"}">${opts
+        ${multi ? `<p class="onboard__intro">${t().multiHint}</p>` : ""}
+        <div class="choices ${multi ? "choices--goals" : "choices--arch"}">${opts
           .map(
-            (o, oi) => `<button type="button" class="choice" data-set="${key}" data-val="${o.id}">
+            (o, oi) => multi
+              ? `<button type="button" class="choice" data-pick-goal="${o.id}" aria-pressed="${goalPick.includes(o.id)}">
+              <span class="choice__num">${goalPick.includes(o.id) ? "✓" : ROMAN[oi]}</span>
+              <span class="choice__label">${esc(o.label)}</span>
+            </button>`
+              : `<button type="button" class="choice" data-set="${key}" data-val="${o.id}">
               <span class="choice__num">${ROMAN[oi]}</span>
               <span class="choice__label">${esc(o.label)}</span>${o.hint ? `<span class="choice__hint">${esc(o.hint)}</span>` : ""}
             </button>`
           )
           .join("")}</div>
+        ${multi ? `<button type="button" class="btn btn--big" data-goals-next ${goalPick.length ? "" : "disabled"}>${t().goalsNext(goalPick.length)}</button>` : ""}
         ${i > 0 ? `<button type="button" class="linkbtn" data-back="${steps[i - 1][0]}">→ ${t().back}</button>` : ""}
       </section>`;
   }
@@ -485,13 +507,12 @@
     const curUnit = units.find((u) => !u.done);
     const per = Math.max(30, journey.pace);
     const weeks = Math.max(1, Math.ceil(total / journey.pace));
-    const g = J.goals.find((x) => x.id === journey.goal);
     const lv = J.levels.find((x) => x.id === journey.level);
     return `
       ${crumbs([])}
       <section class="pathpage">
         <div class="section__head">
-          <span class="eyebrow">${esc(L(lv, "label"))} · ${esc(L(g, "label"))}</span>
+          <span class="eyebrow">${esc(L(lv, "label"))} · ${esc(goalLabels())}</span>
           <h1>${doneN ? t().nav.start : t().ready}</h1>
           <p>${t().pathSummary(units.length, per, weeks)}</p>
         </div>
@@ -522,7 +543,7 @@
   function finishedBox() {
     return `<div class="finished"><h2>${t().allDoneTitle}</h2><p>${t().allDoneText}</p>
       <div class="finished__goals"><span>${t().otherGoal}</span>${J.goals
-        .filter((g) => g.id !== journey.goal)
+        .filter((g) => !journey.goals.includes(g.id))
         .map((g) => `<button type="button" class="choice choice--small" data-switch-goal="${g.id}">${esc(L(g, "label"))}</button>`)
         .join("")}</div></div>`;
   }
@@ -539,7 +560,9 @@
             <p class="about__role">${esc(L(A, "role"))}</p>
             ${(L(A, "paragraphs") || []).map((p) => `<p>${esc(p)}</p>`).join("")}
             <h3>${t().aboutPubs}</h3>
-            <ul>${A.publications.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>
+            <ul class="pubs">${A.publications
+              .map((p) => typeof p === "string" ? `<li>${esc(p)}</li>` : `<li>${esc(p.text)}${p.venue ? ` <span class="pubs__venue">${esc(p.venue)}</span>` : ""}${p.url ? ` <a href="${p.url}" target="_blank" rel="noopener">${t().pubRead}</a>` : ""}${p.site ? ` <a href="${p.site}">${t().pubSite}</a>` : ""}</li>`)
+              .join("")}</ul>
             <h3>${t().aboutContact}</h3>
             <p class="about__links"><span class="email">${esc(A.email)}</span>${A.links.map((l) => `<a href="${l.url}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join("")}</p>
           </div>
@@ -895,16 +918,36 @@
       route();
       return;
     }
+    const pg = e.target.closest("[data-pick-goal]");
+    if (pg) {
+      const id = pg.dataset.pickGoal;
+      goalPick = goalPick.includes(id) ? goalPick.filter((x) => x !== id) : [...goalPick, id];
+      route();
+      return;
+    }
+    if (e.target.closest("[data-goals-next]") && goalPick?.length) {
+      journey.goals = [...goalPick];
+      goalPick = null;
+      saveJourney();
+      route();
+      return;
+    }
     const back = e.target.closest("[data-back]");
-    if (back) { journey[back.dataset.back] = null; saveJourney(); route(); return; }
+    if (back) {
+      if (back.dataset.back === "goal") { goalPick = [...journey.goals]; journey.goals = []; }
+      else journey[back.dataset.back] = null;
+      saveJourney(); route(); return;
+    }
     if (e.target.closest("[data-reset]")) {
       journey.level = journey.goal = journey.pace = null;
+      journey.goals = [];
+      goalPick = null;
       saveJourney();
       go("#start");
       return;
     }
     const sw = e.target.closest("[data-switch-goal]");
-    if (sw) { journey.goal = sw.dataset.switchGoal; saveJourney(); go("#start"); return; }
+    if (sw) { journey.goals = [...journey.goals, sw.dataset.switchGoal]; saveJourney(); go("#start"); return; }
 
     // "done, next step"
     const fin = e.target.closest("[data-complete]");
