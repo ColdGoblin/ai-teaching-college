@@ -719,8 +719,11 @@
       </nav>`;
   }
 
+  // a dated note when a tool shown in the recording has changed since
+  const updateNote = (w) => (L(w, "update") ? `<aside class="update-note" role="note">${esc(L(w, "update"))}</aside>` : "");
+
   function lessonPage(w) {
-    if (stepInfo(w.id)) return guidedFrame(w.id, L(w, "title"), lessonMedia(w), `<p class="summary">${esc(L(w, "summary"))}</p>${lessonExtras(w)}`);
+    if (stepInfo(w.id)) return guidedFrame(w.id, L(w, "title"), lessonMedia(w), `<p class="summary">${esc(L(w, "summary"))}</p>${updateNote(w)}${lessonExtras(w)}`);
     const list = listOf(w);
     const sec = sectionOf(w);
     const i = list.indexOf(w);
@@ -735,6 +738,7 @@
           <p>${esc(L(w, "summary"))}</p>
           <div class="lesson__meta">${w.date ? `<span class="meta">${fmtDate(w.date)}</span>` : ""}${dur(w)}${missingChips(w)}${doneButton(w.id)}</div>
         </header>
+        ${updateNote(w)}
         ${lessonMedia(w)}
         ${taskBox(w.id)}
         ${lessonExtras(w)}
