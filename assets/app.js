@@ -24,7 +24,7 @@
       menu: "תפריט", langBtn: "EN", langTitle: "Switch to English",
       nav: { home: "ראשי", start: "המסלול שלי", portfolio: "התוצרים שלי", all: "כל החומרים", about: "אודות" },
       pr: {
-        badge: "תרגול", labBadge: "התנסות", predict: "הניבוי שלי", predictFirst: "לפני שמתחילים:", predictPh: "כתבו כאן, לפני הצפייה. נחזור לזה בסוף.", predictEmpty: "עוד לא כתבתם ניבוי. אפשר לכתוב אותו למעלה, לפני הצפייה.", advanced: "אתגר למתקדמים", goal: "המטרה", steps: "מה עושים", template: "תבנית להעתקה", copy: "העתקה", copied: "הועתק ✓",
+        badge: "תרגול", labBadge: "התנסות", predict: "מה כתבתי בהתחלה", predictFirst: "לפני שמתחילים:", predictPh: "כתבו כאן לפני שאתם צופים או מעיינים. נחזור לזה בסוף.", predictEmpty: "עוד לא כתבתם. אפשר לכתוב בתיבה שבראש העמוד.", advanced: "אתגר למתקדמים", goal: "המטרה", steps: "מה עושים", template: "תבנית להעתקה", copy: "העתקה", copied: "הועתק ✓",
         why: "למה זה חשוב", watch: "לפני שמתחילים, צפו בקטע:", tplN: (n) => `תבנית ${n}`, reflect: "שאלות לחשיבה (כתבו תשובה קצרה למטה)", pitfall: "מלכודת נפוצה",
         quiz: "שאלת הבנה", right: "נכון!", wrong: "לא בדיוק.", check: "בדיקה עצמית", output: (o) => `מה יצא לי? (${o})`,
         notePh: "הדביקו כאן קישור לתוצר, וכתבו תשובות קצרות לשאלות החשיבה", saved: "נשמר בדפדפן שלכם", allMine: "לכל התוצרים שלי",
@@ -92,7 +92,7 @@
       menu: "Menu", langBtn: "עב", langTitle: "לעברית",
       nav: { home: "Home", start: "My path", portfolio: "My work", all: "All materials", about: "About" },
       pr: {
-        badge: "Practice", labBadge: "Hands-on", predict: "My prediction", predictFirst: "Before you start:", predictPh: "Write here before watching. We will come back to it.", predictEmpty: "No prediction yet. You can write it above, before watching.", advanced: "Advanced challenge", goal: "Goal", steps: "What to do", template: "Template to copy", copy: "Copy", copied: "Copied ✓",
+        badge: "Practice", labBadge: "Hands-on", predict: "What I wrote first", predictFirst: "Before you start:", predictPh: "Write here before watching or reading. We will come back to it.", predictEmpty: "Nothing yet. You can write it in the box at the top of the page.", advanced: "Advanced challenge", goal: "Goal", steps: "What to do", template: "Template to copy", copy: "Copy", copied: "Copied ✓",
         why: "Why it matters", watch: "Before you start, watch:", tplN: (n) => `Template ${n}`, reflect: "Questions to think about (answer briefly below)", pitfall: "Common pitfall",
         quiz: "Check your understanding", right: "Correct!", wrong: "Not quite.", check: "Self-check", output: (o) => `What did you make? (${o})`,
         notePh: "Paste a link to your work, and answer the thinking questions briefly", saved: "Saved in your browser", allMine: "All my work",
