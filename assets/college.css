@@ -228,3 +228,6 @@ a { color: var(--navy); }
 /* prediction asked before the media */
 .predict-first { margin: 14px 0 18px; padding: 14px 16px; background: var(--card); border: 1px solid var(--gold); border-inline-start: 5px solid var(--gold); border-radius: 6px; }
 .predict-first label { display: block; margin-bottom: 8px; }
+
+/* note on agentic tools */
+.practice__agentic { margin: 14px 0; padding: 10px 14px; background: var(--paper); border: 1px solid var(--tan); border-radius: 6px; font-size: .95em; }
