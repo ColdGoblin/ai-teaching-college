@@ -224,3 +224,7 @@ a { color: var(--navy); }
 .practice__adv p { margin: 8px 0 0; }
 
 .lib__note { margin: 4px 0 8px; font-size: .92em; color: var(--muted, #5a5446); font-style: italic; }
+
+/* prediction asked before the media */
+.predict-first { margin: 14px 0 18px; padding: 14px 16px; background: var(--card); border: 1px solid var(--gold); border-inline-start: 5px solid var(--gold); border-radius: 6px; }
+.predict-first label { display: block; margin-bottom: 8px; }

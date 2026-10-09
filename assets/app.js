@@ -24,7 +24,7 @@
       menu: "תפריט", langBtn: "EN", langTitle: "Switch to English",
       nav: { home: "ראשי", start: "המסלול שלי", portfolio: "התוצרים שלי", all: "כל החומרים", about: "אודות" },
       pr: {
-        badge: "תרגול", labBadge: "התנסות", predict: "לפני שמתחילים, נחשו", advanced: "אתגר למתקדמים", goal: "המטרה", steps: "מה עושים", template: "תבנית להעתקה", copy: "העתקה", copied: "הועתק ✓",
+        badge: "תרגול", labBadge: "התנסות", predict: "הניבוי שלי", predictFirst: "לפני שמתחילים:", predictPh: "כתבו כאן, לפני הצפייה. נחזור לזה בסוף.", predictEmpty: "עוד לא כתבתם ניבוי. אפשר לכתוב אותו למעלה, לפני הצפייה.", advanced: "אתגר למתקדמים", goal: "המטרה", steps: "מה עושים", template: "תבנית להעתקה", copy: "העתקה", copied: "הועתק ✓",
         why: "למה זה חשוב", watch: "לפני שמתחילים, צפו בקטע:", tplN: (n) => `תבנית ${n}`, reflect: "שאלות לחשיבה (כתבו תשובה קצרה למטה)", pitfall: "מלכודת נפוצה",
         quiz: "שאלת הבנה", right: "נכון!", wrong: "לא בדיוק.", check: "בדיקה עצמית", output: (o) => `מה יצא לי? (${o})`,
         notePh: "הדביקו כאן קישור לתוצר, וכתבו תשובות קצרות לשאלות החשיבה", saved: "נשמר בדפדפן שלכם", allMine: "לכל התוצרים שלי",
@@ -92,7 +92,7 @@
       menu: "Menu", langBtn: "עב", langTitle: "לעברית",
       nav: { home: "Home", start: "My path", portfolio: "My work", all: "All materials", about: "About" },
       pr: {
-        badge: "Practice", labBadge: "Hands-on", predict: "Before you start, predict", advanced: "Advanced challenge", goal: "Goal", steps: "What to do", template: "Template to copy", copy: "Copy", copied: "Copied ✓",
+        badge: "Practice", labBadge: "Hands-on", predict: "My prediction", predictFirst: "Before you start:", predictPh: "Write here before watching. We will come back to it.", predictEmpty: "No prediction yet. You can write it above, before watching.", advanced: "Advanced challenge", goal: "Goal", steps: "What to do", template: "Template to copy", copy: "Copy", copied: "Copied ✓",
         why: "Why it matters", watch: "Before you start, watch:", tplN: (n) => `Template ${n}`, reflect: "Questions to think about (answer briefly below)", pitfall: "Common pitfall",
         quiz: "Check your understanding", right: "Correct!", wrong: "Not quite.", check: "Self-check", output: (o) => `What did you make? (${o})`,
         notePh: "Paste a link to your work, and answer the thinking questions briefly", saved: "Saved in your browser", allMine: "All my work",
@@ -349,7 +349,7 @@
   const prState = (pid) => (journey.practice ||= {})[pid] ||= { checks: [], note: "", quiz: {} };
   const prTouched = (pid) => {
     const st = journey.practice?.[pid];
-    return !!st && (st.note?.trim() || st.checks?.some(Boolean) || Object.keys(st.quiz || {}).length);
+    return !!st && (st.note?.trim() || st.predict?.trim() || st.checks?.some(Boolean) || Object.keys(st.quiz || {}).length);
   };
   function practiceCard(ref) {
     const p = PR[ref];
@@ -359,7 +359,7 @@
       <div class="practice__head"><span class="practice__badge">✎ ${p.kind === "lab" ? x.labBadge : x.badge} · ${esc(L(p, "time"))}</span><h2>${esc(L(p, "title"))}</h2></div>
       <p class="practice__goal"><strong>${x.goal}:</strong> ${esc(L(p, "goal"))}</p>
       ${p.why ? `<p class="practice__why"><strong>${x.why}:</strong> ${esc(L(p, "why"))}</p>` : ""}
-      ${p.predict ? `<p class="practice__predict"><strong>${x.predict}:</strong> ${esc(L(p, "predict"))}</p>` : ""}
+      ${p.predict ? `<p class="practice__predict"><strong>${x.predict}:</strong> ${st.predict?.trim() ? esc(st.predict) : x.predictEmpty}</p>` : ""}
       ${(() => {
         const w = lessons.find((l) => l.id === ref);
         return p.watch && w?.video?.id
@@ -397,6 +397,14 @@
         <p class="practice__foot"><span class="meta" data-saved hidden>${x.saved}</span><a href="#portfolio">${x.allMine}</a></p></div>
     </section>`;
   }
+  // the prediction is asked before the media, so learners commit to it before watching
+  const predictBox = (ref) => {
+    const p = PR[ref];
+    if (!p?.predict) return "";
+    const st = journey.practice?.[p.id] || {};
+    return `<aside class="predict-first" data-pid="${p.id}"><label for="pred-${p.id}"><strong>${t().pr.predictFirst}</strong> ${esc(L(p, "predict"))}</label>
+      <textarea id="pred-${p.id}" class="note" data-ppredict rows="2" placeholder="${t().pr.predictPh}">${esc(st.predict || "")}</textarea></aside>`;
+  };
   const taskBox = (ref) =>
     PR[ref] ? practiceCard(ref) : `<section class="task"><h2>${t().taskTitle}</h2><p>${esc(taskFor(ref))}</p></section>`;
 
@@ -411,6 +419,7 @@
              const href = resolveRef(ref)?.href || "#";
              const n = (st.checks || []).filter(Boolean).length;
              return `<li class="pf__item"><div class="pf__head"><span class="practice__badge">✎ ${p.id}</span><h3>${esc(L(p, "title"))}</h3><span class="meta">${x.pfChecks(n, L(p, "checks").length)}</span></div>
+               ${st.predict?.trim() ? `<p class="pf__label">${x.predict}</p><p class="pf__note">${linkify(st.predict)}</p>` : ""}
                <p class="pf__label">${esc(L(p, "output"))}</p>
                <p class="pf__note">${st.note?.trim() ? linkify(st.note) : "—"}</p>
                <a href="${href}" data-jump>${x.pfOpen}</a></li>`;
@@ -427,7 +436,7 @@
         const st = journey.practice[p.id];
         const checks = L(p, "checks").map((c, i) => `${st.checks?.[i] ? "[x]" : "[ ]"} ${c}`).join("\n");
         const qs = (L(p, "reflect") || []).map((r) => `- ${r}`).join("\n");
-        return `## ${p.id} · ${L(p, "title")}\n${L(p, "output")}:\n${st.note || "—"}\n\n${checks}${qs ? `\n\n${qs}` : ""}`;
+        return `## ${p.id} · ${L(p, "title")}\n${st.predict?.trim() ? `${t().pr.predict}:\n${st.predict}\n\n` : ""}${L(p, "output")}:\n${st.note || "—"}\n\n${checks}${qs ? `\n\n${qs}` : ""}`;
       })
       .join("\n\n---\n\n");
   }
@@ -449,6 +458,7 @@
           <h1>${esc(title)}</h1>
           <p class="why">${esc(whyFor(info.step.stage))}</p>
         </header>
+        ${predictBox(ref)}
         ${media}
         ${taskBox(ref)}
         <div class="finish">
@@ -737,6 +747,7 @@
           <div class="lesson__meta">${w.date ? `<span class="meta">${fmtDate(w.date)}</span>` : ""}${dur(w)}${missingChips(w)}${doneButton(w.id)}</div>
         </header>
         ${updateNote(w)}
+        ${predictBox(w.id)}
         ${lessonMedia(w)}
         ${taskBox(w.id)}
         ${lessonExtras(w)}
@@ -765,6 +776,7 @@
           <h1>${esc(v.title)}</h1>
           <div class="lesson__meta">${v.dur ? `<span class="time">${esc(v.dur)}</span>` : ""}${doneButton("v:" + v.id)}</div>
         </header>
+        ${predictBox("v:" + v.id)}
         ${media}
         ${taskBox("v:" + v.id)}
         ${videoMore(v)}
@@ -793,6 +805,7 @@
           <h1>${esc(g.title)}</h1>
           <div class="lesson__meta">${doneButton("g:" + g.id)}</div>
         </header>
+        ${predictBox("g:" + g.id)}
         ${media}
         ${taskBox("g:" + g.id)}
         ${gammaMore(g)}
@@ -1069,9 +1082,9 @@
   });
   let noteTimer;
   app.addEventListener("input", (e) => {
-    if (e.target.matches("[data-pnote]")) {
+    if (e.target.matches("[data-pnote], [data-ppredict]")) {
       const pid = e.target.closest("[data-pid]").dataset.pid;
-      prState(pid).note = e.target.value;
+      prState(pid)[e.target.matches("[data-ppredict]") ? "predict" : "note"] = e.target.value;
       clearTimeout(noteTimer);
       noteTimer = setTimeout(() => {
         saveJourney();
