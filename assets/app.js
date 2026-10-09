@@ -24,7 +24,7 @@
       menu: "תפריט", langBtn: "EN", langTitle: "Switch to English",
       nav: { home: "ראשי", start: "המסלול שלי", portfolio: "התוצרים שלי", all: "כל החומרים", about: "אודות" },
       pr: {
-        badge: "תרגול", labBadge: "התנסות", agentic: "לאן זה הולך: כלים סוכניים", predict: "מה כתבתי בהתחלה", predictFirst: "לפני שמתחילים:", predictPh: "כתבו כאן לפני שאתם צופים או מעיינים. נחזור לזה בסוף.", predictEmpty: "עוד לא כתבתם. אפשר לכתוב בתיבה שבראש העמוד.", advanced: "אתגר למתקדמים", goal: "המטרה", steps: "מה עושים", template: "תבנית להעתקה", copy: "העתקה", copied: "הועתק ✓",
+        badge: "תרגול", labBadge: "התנסות", agentic: "להרחבה: כלים סוכניים", predict: "מה כתבתי בהתחלה", predictFirst: "לפני שמתחילים:", predictPh: "כתבו כאן לפני שאתם צופים או מעיינים. נחזור לזה בסוף.", predictEmpty: "עוד לא כתבתם. אפשר לכתוב בתיבה שבראש העמוד.", advanced: "אתגר למתקדמים", goal: "המטרה", steps: "מה עושים", template: "תבנית להעתקה", copy: "העתקה", copied: "הועתק ✓",
         why: "למה זה חשוב", watch: "לפני שמתחילים, צפו בקטע:", tplN: (n) => `תבנית ${n}`, reflect: "שאלות לחשיבה (כתבו תשובה קצרה למטה)", pitfall: "מלכודת נפוצה",
         quiz: "שאלת הבנה", right: "נכון!", wrong: "לא בדיוק.", check: "בדיקה עצמית", output: (o) => `מה יצא לי? (${o})`,
         notePh: "הדביקו כאן קישור לתוצר, וכתבו תשובות קצרות לשאלות החשיבה", saved: "נשמר בדפדפן שלכם", allMine: "לכל התוצרים שלי",
@@ -92,7 +92,7 @@
       menu: "Menu", langBtn: "עב", langTitle: "לעברית",
       nav: { home: "Home", start: "My path", portfolio: "My work", all: "All materials", about: "About" },
       pr: {
-        badge: "Practice", labBadge: "Hands-on", agentic: "Where this is going: agentic tools", predict: "What I wrote first", predictFirst: "Before you start:", predictPh: "Write here before watching or reading. We will come back to it.", predictEmpty: "Nothing yet. You can write it in the box at the top of the page.", advanced: "Advanced challenge", goal: "Goal", steps: "What to do", template: "Template to copy", copy: "Copy", copied: "Copied ✓",
+        badge: "Practice", labBadge: "Hands-on", agentic: "Going further: agentic tools", predict: "What I wrote first", predictFirst: "Before you start:", predictPh: "Write here before watching or reading. We will come back to it.", predictEmpty: "Nothing yet. You can write it in the box at the top of the page.", advanced: "Advanced challenge", goal: "Goal", steps: "What to do", template: "Template to copy", copy: "Copy", copied: "Copied ✓",
         why: "Why it matters", watch: "Before you start, watch:", tplN: (n) => `Template ${n}`, reflect: "Questions to think about (answer briefly below)", pitfall: "Common pitfall",
         quiz: "Check your understanding", right: "Correct!", wrong: "Not quite.", check: "Self-check", output: (o) => `What did you make? (${o})`,
         notePh: "Paste a link to your work, and answer the thinking questions briefly", saved: "Saved in your browser", allMine: "All my work",
@@ -391,8 +391,7 @@
       <div class="practice__block"><h3>${x.check}</h3><ul class="checks">${L(p, "checks")
         .map((c, ci) => `<li><label><input type="checkbox" data-pcheck="${ci}" ${st.checks?.[ci] ? "checked" : ""}> <span>${esc(c)}</span></label></li>`)
         .join("")}</ul></div>
-      ${p.agentic ? `<aside class="practice__agentic"><strong>${x.agentic}:</strong> ${esc(L(p, "agentic"))}</aside>` : ""}
-      ${p.advanced ? `<details class="practice__adv"${journey.level === "advanced" ? " open" : ""}><summary>${x.advanced}</summary><p>${esc(L(p, "advanced"))}</p></details>` : ""}
+      ${p.advanced ? `<details class="practice__adv"${journey.level === "advanced" ? " open" : ""}><summary>${x.advanced}</summary><p>${esc(L(p, "advanced"))}</p>${p.agentic ? `<p class="practice__agentic"><strong>${x.agentic}:</strong> ${esc(L(p, "agentic"))}</p>` : ""}</details>` : ""}
       <div class="practice__block"><label class="note-label" for="note-${p.id}">${x.output(esc(L(p, "output")))}</label>
         <textarea id="note-${p.id}" class="note" data-pnote rows="3" placeholder="${x.notePh}">${esc(st.note || "")}</textarea>
         <p class="practice__foot"><span class="meta" data-saved hidden>${x.saved}</span><a href="#portfolio">${x.allMine}</a></p></div>
