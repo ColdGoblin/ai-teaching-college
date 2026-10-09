@@ -222,3 +222,5 @@ a { color: var(--navy); }
 .practice__adv { margin: 16px 0; padding: 10px 14px; border: 1px dashed var(--navy); border-radius: 6px; background: var(--card); }
 .practice__adv summary { cursor: pointer; font-weight: 700; color: var(--navy); }
 .practice__adv p { margin: 8px 0 0; }
+
+.lib__note { margin: 4px 0 8px; font-size: .92em; color: var(--muted, #5a5446); font-style: italic; }
