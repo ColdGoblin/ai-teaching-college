@@ -1,6 +1,5 @@
 (function () {
   const S = window.SITE;
-  const D = S.dataCourse;
   const J = S.journeys;
   const app = document.getElementById("app");
 
@@ -58,7 +57,6 @@
       exploreTitle: "לחקור עוד", exploreIntro: "כל החומרים באתר, למי שרוצה לדפדף בעצמו.",
       cards: {
         kaye: ["הכשרת קיי", "תשע סדנאות למרצי המכללה"],
-        data: ["קורס הדאטה", "השתלמות למורי מידע ונתונים"],
         bonus: ["סדנאות בונוס", "סדנאות מלאות מחוץ לתוכנית"],
         mini: ["מיני-סרטונים", "איך עושים… בכמה דקות"],
         library: ["ספריית מצגות", "כל המצגות לפי נושא"],
@@ -127,7 +125,6 @@
       exploreTitle: "Explore more", exploreIntro: "Everything on the site, for browsing on your own.",
       cards: {
         kaye: ["Kaye training", "Nine workshops for lecturers"],
-        data: ["Data course", "Course for data teachers"],
         bonus: ["Bonus workshops", "Full workshops outside the programme"],
         mini: ["Short videos", "How-to in a few minutes"],
         library: ["Slide library", "All decks by topic"],
@@ -184,9 +181,9 @@
   };
 
   // ---------- indexes ----------
-  const lessons = [...S.workshops, ...D.sessions, ...S.bonus];
-  const listOf = (w) => (S.workshops.includes(w) ? S.workshops : D.sessions.includes(w) ? D.sessions : S.bonus);
-  const sectionOf = (w) => (S.workshops.includes(w) ? "kaye" : D.sessions.includes(w) ? "data" : "bonus");
+  const lessons = [...S.workshops, ...S.bonus];
+  const listOf = (w) => (S.workshops.includes(w) ? S.workshops : S.bonus);
+  const sectionOf = (w) => (S.workshops.includes(w) ? "kaye" : "bonus");
 
   const allVideos = new Map();
   S.mini.forEach((g) => g.items.forEach((v) => allVideos.set(v.id, { ...v, tool: g.tool })));
@@ -231,7 +228,7 @@
     const w = lessons.find((x) => x.id === ref);
     if (!w) return null;
     const mins = w.video?.dur ? toMinutes(w.video.dur) : w.video ? 75 : 10;
-    return { ref, title: L(w, "title"), href: `#${w.id}`, kind: !w.video ? t().kind.materials : sectionOf(w) === "data" ? t().kind.recSession : t().kind.rec, mins, type: "lesson", highlights: !!w.chapters?.length };
+    return { ref, title: L(w, "title"), href: `#${w.id}`, kind: !w.video ? t().kind.materials : t().kind.rec, mins, type: "lesson", highlights: !!w.chapters?.length };
   }
 
   // the path: stages → steps → units sized to the learner's weekly time
@@ -579,7 +576,6 @@
     };
     return `<div class="cards2">
       ${card("kaye", S.workshops.length, S.workshops)}
-      ${card("data", D.sessions.length, D.sessions)}
       ${card("bonus", S.bonus.length)}
       ${card("mini", S.mini.reduce((n, g) => n + g.items.length, 0))}
       ${card("library", S.library.reduce((n, tp) => n + tp.items.length, 0))}
@@ -640,7 +636,6 @@
 
   const allPage = () => `${crumbs([])}<section class="section">${head("", t().nav.all, t().exploreIntro)}${materialCards()}</section>`;
   const kayePage = () => `${crumbs([["#all", t().nav.all]])}<section class="section">${head(t().kayeEyebrow, t().kayeTitle, t().kayeIntro(S.workshops.length))}${trackList(S.workshops)}</section>`;
-  const dataPage = () => `${crumbs([["#all", t().nav.all]])}<section class="section">${head(t().dataEyebrow, L(D, "title"), L(D, "intro"))}${trackList(D.sessions)}</section>`;
   const bonusPage = () => `${crumbs([["#all", t().nav.all]])}<section class="section">${head(t().bonusEyebrow, t().bonusTitle)}
     <div class="cards">${S.bonus
       .map(
@@ -669,7 +664,7 @@
   function lessonMedia(w) {
     const list = listOf(w);
     const i = list.indexOf(w);
-    const unit = sectionOf(w) === "data" ? t().session : t().workshop;
+    const unit = t().workshop;
     const tabs = [];
     tabs.push([
       "rec",
@@ -727,8 +722,8 @@
     const list = listOf(w);
     const sec = sectionOf(w);
     const i = list.indexOf(w);
-    const unit = sec === "data" ? t().session : t().workshop;
-    const label = sec === "kaye" ? t().kayeTitle : sec === "data" ? L(D, "title") : t().bonusTitle;
+    const unit = t().workshop;
+    const label = sec === "kaye" ? t().kayeTitle : t().bonusTitle;
     return `
       ${crumbs([["#all", t().nav.all], [`#${sec}`, label]])}
       <article class="lesson">
@@ -834,7 +829,7 @@
   }
 
   // ---------- router ----------
-  const MATERIAL_ROUTES = new Set(["all", "kaye", "data", "bonus", "mini", "library"]);
+  const MATERIAL_ROUTES = new Set(["all", "kaye", "bonus", "mini", "library"]);
   function route() {
     const h = decodeURIComponent(location.hash.slice(1));
     const lesson = lessons.find((x) => x.id === h);
@@ -844,7 +839,6 @@
     else if (h === "all") html = allPage();
     else if (h === "portfolio") html = portfolioPage();
     else if (h === "kaye") html = kayePage();
-    else if (h === "data") html = dataPage();
     else if (h === "bonus") html = bonusPage();
     else if (h === "mini") html = miniPage();
     else if (h === "library") html = libraryPage();
