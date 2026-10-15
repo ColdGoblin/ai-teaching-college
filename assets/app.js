@@ -431,6 +431,7 @@
       <div class="practice__head"><span class="practice__badge">✎ ${p.kind === "lab" ? x.labBadge : x.badge} · ${esc(L(p, "time"))}</span><h2>${esc(L(p, "title"))}</h2></div>
       <p class="practice__goal"><strong>${x.goal}:</strong> ${esc(L(p, "goal"))}</p>
       ${p.why ? `<p class="practice__why"><strong>${x.why}:</strong> ${esc(L(p, "why"))}</p>` : ""}
+      ${p.explainer ? `<section class="practice__block" dir="rtl" lang="he"><h3>איך בנוי סקיל</h3>${p.explainer.map(([title,text]) => `<h4>${esc(title)}</h4><p>${esc(text)}</p>`).join("")}<p><a href="https://developers.openai.com/plugins/concepts/skills" target="_blank" rel="noopener">מקור: התיעוד הרשמי על סקילים</a></p></section>` : ""}
       ${p.predict ? `<p class="practice__predict"><strong>${x.predict}:</strong> ${st.predict?.trim() ? esc(st.predict) : x.predictEmpty}</p>` : ""}
       ${(() => {
         const w = lessons.find((l) => l.id === ref);

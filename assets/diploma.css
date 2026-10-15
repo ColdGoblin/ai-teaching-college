@@ -59,3 +59,17 @@
   .dp-print .dp-cert{width:297mm;height:210mm;aspect-ratio:auto;box-shadow:none}
   .dp-print *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
+/* Completion flow: the action bar stays outside the scrolling content. */
+.dp-dialog[open]{display:flex;flex-direction:column;height:min(940px,94dvh);overflow:hidden}
+.dp-scroll{overflow:auto;min-height:0;flex:1;padding:4px 8px}
+.dp-dialog .dp-actions{flex:none;border-top:1px solid var(--line);padding:14px 4px 4px;background:var(--paper);gap:10px}
+.dp-dialog .dp-actions .btn,.diploma-sample .btn{min-height:44px}
+.dp-dialog textarea{display:block;box-sizing:border-box;width:100%;resize:vertical;min-height:120px;font:inherit;line-height:1.6;padding:10px;border:1px solid var(--ink);border-radius:6px;background:#fff;color:var(--ink)}
+.dp-dialog .dp-consent{display:flex;align-items:start;gap:10px;min-height:44px}
+.dp-dialog .dp-consent input{width:22px;min-height:22px;flex:none;margin-top:4px}
+.dp-dialog [hidden]{display:none!important}
+.diploma-sample [data-dp-sample],.diploma-sample .dp-note{margin-inline:auto}
+.diploma-sample .dp-picker{justify-content:center}
+@media(max-width:480px){.dp-dialog .dp-actions{gap:8px}.dp-dialog .dp-actions .btn{padding:8px 12px;font-size:.95rem}}
+.dp-dialog .dp-actions button:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}

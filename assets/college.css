@@ -238,3 +238,7 @@ a { color: var(--navy); }
 .seg { margin: 0; padding: 10px 14px; border-inline-start: 4px solid var(--navy); background: var(--accent-soft); }
 .safety { margin: 0 0 12px; padding: 10px 14px; border-radius: 8px; background: #fff6dc; border: 1.5px solid #c99a1e; color: #3d2e05; }
 .practice__status { margin: 0 0 6px; }
+
+/* Comfortable navigation targets and legible decorative numerals. */
+.nav a{min-height:44px;display:inline-flex;align-items:center;box-sizing:border-box}
+.how__n{color:var(--navy)}

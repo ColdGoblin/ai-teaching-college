@@ -144,13 +144,73 @@
     dlg.className = "dp-dialog";
     dlg.dir = "rtl";
     dlg.setAttribute("aria-labelledby", "dp-dlg-title");
-    dlg.innerHTML = `<h2 id="dp-dlg-title">הדיפלומה שלכם</h2>
+    // Deliberately unconnected until the owner supplies their private Form configuration.
+    const form = window.SITE?.reflectionForm;
+    const keys = ['learned','integration','name','level','topics','version'];
+    const connected = !!form && /^https:\/\/docs\.google\.com\/forms\/d\/e\/[^/]+\/formResponse$/.test(form.url || '') && keys.every(k => /^entry\.\d+$/.test(form.fields?.[k] || ''));
+    dlg.innerHTML = `<div class="dp-scroll">
+      <h2 id="dp-dlg-title">סיכום הלמידה והדיפלומה שלכם</h2>
       <label for="dp-name">השם שיופיע בדיפלומה<input id="dp-name" maxlength="40" autocomplete="off"></label>
-      <p class="dp-meta">השם לא נשמר ולא נשלח. הדיפלומה נוצרת במכשיר שלכם ונעלמת עם סגירת החלון.</p>
-      <div data-dp-preview></div>
-      <div class="dp-actions"><button type="button" class="btn" data-dp-download>הורדת PDF</button><button type="button" class="btn btn--ghost" data-dp-print>הדפסה או שמירה כ-PDF</button><button type="button" class="btn btn--ghost" data-dp-close>סגירה</button></div>`;
+      <p class="dp-meta">הדיפלומה עצמה נוצרת במכשיר שלכם. הטקסט והשם אינם נשמרים בדפדפן, ולא יישלחו בלי הסכמתכם. סגירת החלון מוחקת את הטקסט, לכן כדאי להעתיק אותו קודם.</p>
+      <section data-dp-reflection>
+        <p role="note">אל תכתבו מידע מזהה על תלמידים או עמיתים. ${connected ? 'לאחר אישור ושליחה, הטקסט והשם יועברו באמצעות טופס של Google לעידן שביט, מרצה הקורס, לצורך קריאה ושיפור הקורס. המידע מיועד לגיליון פרטי. אפשר לבקש מחיקה בפנייה לעידן דרך פרטי הקשר באתר.' : 'שמירת הסיכומים אצל המרצה עדיין אינה מחוברת. כרגע שום טקסט לא נשלח. אפשר לכתוב, להעתיק ולהמשיך לדיפלומה.'}</p>
+        <label for="dp-learned">מה למדתי</label>
+        <p id="dp-learned-help">כתבו פסקה או שתיים: מה למדתם במסלול, ומה אתם לוקחים ממנו.</p>
+        <textarea id="dp-learned" rows="4" aria-describedby="dp-learned-help dp-learned-count"></textarea>
+        <p id="dp-learned-count" class="dp-meta" aria-live="polite"></p>
+        <label for="dp-integration">בינה מלאכותית בלמידה ובהוראה שלי</label>
+        <p id="dp-integration-help">איך אתם רואים את השילוב של הבינה המלאכותית בלמידה שלכם ובהוראה שלכם?</p>
+        <textarea id="dp-integration" rows="4" aria-describedby="dp-integration-help dp-integration-count"></textarea>
+        <p id="dp-integration-count" class="dp-meta" aria-live="polite"></p>
+        <label class="dp-consent"><input type="checkbox" data-dp-consent ${connected ? '' : 'disabled'}>קראתי ואני מסכים/ה שהטקסט שכתבתי ושמי יישלחו ויישמרו אצל המרצה.</label>
+      </section>
+      <div data-dp-preview hidden></div>
+      <p data-dp-status role="status"></p>
+      </div>
+      <div class="dp-actions">
+        <button type="button" class="btn" data-dp-send disabled>שליחה וקבלת הדיפלומה</button>
+        <button type="button" class="btn btn--ghost" data-dp-continue disabled>המשך לדיפלומה ללא שליחה</button>
+        <button type="button" class="btn btn--ghost" data-dp-copy>העתקת הטקסט שלי</button>
+        <button type="button" class="btn" data-dp-download hidden>הורדת PDF</button>
+        <button type="button" class="btn btn--ghost" data-dp-print hidden>הדפסה או שמירה לקובץ</button>
+        <button type="button" class="btn btn--ghost" data-dp-back hidden>חזרה לטקסט שלי</button>
+        <button type="button" class="btn btn--ghost" data-dp-close>סגירה</button>
+      </div>`;
     const input = dlg.querySelector("#dp-name"), prev = dlg.querySelector("[data-dp-preview]");
     const draw = () => { prev.innerHTML = html(levelId, input.value, topics); };
+    const learned=dlg.querySelector('#dp-learned'), integration=dlg.querySelector('#dp-integration');
+    const send=dlg.querySelector('[data-dp-send]'), next=dlg.querySelector('[data-dp-continue]'), consent=dlg.querySelector('[data-dp-consent]'), status=dlg.querySelector('[data-dp-status]');
+    const words=value=>value.trim().split(/\s+/u).filter(Boolean).length;
+    function validate(){
+      for(const field of [learned,integration]) { const count=words(field.value); dlg.querySelector('#'+field.id+'-count').textContent=count<30 ? `עוד ${30-count} מילים להשלמת הפסקה` : `${count} מילים`; }
+      const valid=words(learned.value)>=30 && words(integration.value)>=30;
+      send.disabled=!connected || !valid || !consent.checked;
+      next.disabled=!valid;
+    }
+    function showDiploma(show){
+      dlg.querySelector('[data-dp-reflection]').hidden=show; prev.hidden=!show;
+      for(const key of ['send','continue','copy']) dlg.querySelector('[data-dp-'+key+']').hidden=show;
+      for(const key of ['download','print','back']) dlg.querySelector('[data-dp-'+key+']').hidden=!show;
+      dlg.querySelector('.dp-scroll').scrollTop=0;
+      (show ? dlg.querySelector('[data-dp-download]') : learned).focus();
+    }
+    for(const field of [learned,integration,consent]) field.addEventListener('input',validate);
+    next.addEventListener('click',()=>showDiploma(true));
+    dlg.querySelector('[data-dp-back]').addEventListener('click',()=>showDiploma(false));
+    dlg.querySelector('[data-dp-copy]').addEventListener('click',async()=>{
+      try { await navigator.clipboard.writeText(`מה למדתי\n${learned.value}\n\nבינה מלאכותית בלמידה ובהוראה שלי\n${integration.value}`); status.textContent='הטקסט הועתק.'; }
+      catch { status.textContent='ההעתקה האוטומטית לא הצליחה. אפשר לסמן את הטקסט ולהעתיק ידנית.'; learned.focus(); learned.select(); }
+    });
+    send.addEventListener('click',async()=>{
+      if(send.disabled || !connected) return;
+      send.disabled=true;
+      const data=new URLSearchParams(), values={learned:learned.value,integration:integration.value,name:input.value,level:levelId,topics:topics.join(', '),version:'reflection-v1'};
+      for(const key of keys) data.set(form.fields[key],values[key]);
+      try { await fetch(form.url,{method:'POST',mode:'no-cors',credentials:'omit',body:data,signal:AbortSignal.timeout(15000)}); status.textContent='בקשת השליחה הסתיימה. אין אפשרות לאמת מכאן שהטופס קלט אותה. מומלץ לשמור עותק של הטקסט.'; showDiploma(true); }
+      catch { status.textContent='השליחה לא הצליחה. הטקסט נשאר כאן. אפשר לנסות שוב, להעתיק אותו או להמשיך לדיפלומה ללא שליחה.'; }
+      finally { validate(); }
+    });
+    validate();
     input.addEventListener("input", draw);
     dlg.querySelector('[data-dp-download]').addEventListener('click',async e=>{const button=e.currentTarget;button.disabled=true;button.textContent='מכין את הקובץ…';try{await downloadPDF(levelId,input.value,topics);button.textContent='הורדת PDF';}catch(error){button.textContent='ההורדה נכשלה, אפשר להדפיס ולשמור לקובץ';}finally{button.disabled=false;}});
     dlg.querySelector("[data-dp-print]").addEventListener("click", () => print(html(levelId, input.value, topics)));
@@ -159,7 +219,7 @@
     draw();
     document.body.append(dlg);
     dlg.showModal();
-    input.focus();
+    learned.focus();
   }
 
   window.Diploma = { html, open, levels: Object.keys(LEVELS) };
