@@ -552,7 +552,7 @@
   function onboarding() {
     const steps = [
       ["level", J.levels.map((o) => ({ id: o.id, label: L(o, "label"), hint: L(o, "hint") }))],
-      ["goal", J.goals.map((o) => ({ id: o.id, label: L(o, "label") }))],
+      ["goal", J.goals.map((o) => ({ id: o.id, label: L(o, "label"), hint: lang === "en" ? o.hint_en : o.hint }))],
       ["pace", J.paces.map((o) => ({ id: o.id, label: L(o, "label"), hint: L(o, "hint") }))],
     ];
     const i = !journey.level ? 0 : !journey.goals.length ? 1 : 2;
