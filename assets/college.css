@@ -231,3 +231,10 @@ a { color: var(--navy); }
 
 /* note on agentic tools */
 .practice__agentic { margin: 14px 0; padding: 10px 14px; background: var(--paper); border: 1px solid var(--tan); border-radius: 6px; font-size: .95em; }
+
+/* save failure: stays until a save works again */
+.notice--alert { display: grid; gap: 8px; background: #fde8e4; color: #5a1a10; border: 1.5px solid #b3412e; }
+.notice--alert p { margin: 0; }
+.seg { margin: 0; padding: 10px 14px; border-inline-start: 4px solid var(--navy); background: var(--accent-soft); }
+.safety { margin: 0 0 12px; padding: 10px 14px; border-radius: 8px; background: #fff6dc; border: 1.5px solid #c99a1e; color: #3d2e05; }
+.practice__status { margin: 0 0 6px; }

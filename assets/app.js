@@ -9,7 +9,7 @@
       try { const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback; } catch { return fallback; }
     },
     set(key, value) {
-      try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+      try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch { return false; } // the caller tells the learner
     },
   };
 
@@ -28,11 +28,16 @@
         why: "למה זה חשוב", watch: "לפני שמתחילים, צפו בקטע:", tplN: (n) => `תבנית ${n}`, reflect: "שאלות לחשיבה (כתבו תשובה קצרה למטה)", pitfall: "מלכודת נפוצה",
         quiz: "שאלת הבנה", right: "נכון!", wrong: "לא בדיוק.", check: "בדיקה עצמית", output: (o) => `מה יצא לי? (${o})`,
         notePh: "הדביקו כאן קישור לתוצר, וכתבו תשובות קצרות לשאלות החשיבה", saved: "נשמר בדפדפן שלכם", allMine: "לכל התוצרים שלי",
-        nudge: "רגע לפני שממשיכים: יש כאן תרגול קצר. עשר דקות של תרגול שוות יותר משעה של צפייה.", toPractice: "לתרגול", skip: "להמשיך בכל זאת",
+        nudge: "רגע לפני שממשיכים: יש כאן תרגול קצר. כמה דקות של תרגול שוות יותר משעה של צפייה.", nudgeMins: (m) => `רגע לפני שממשיכים: יש כאן תרגול של כ-${m} דקות. תרגול קצר שווה יותר משעה של צפייה.`, toPractice: "לתרגול", skip: "להמשיך בכל זאת",
         inPath: "✎ תרגול",
         pfTitle: "התוצרים שלי", pfIntro: "כל מה ששמרתם בתרגולים. הכל שמור רק בדפדפן הזה, אז כדאי להעתיק או להוריד מדי פעם.",
         pfEmpty: "עוד לא שמרתם תוצרים. התרגולים מופיעים בצעדים המרכזיים של המסלול.", pfCopy: "העתקת הכל", pfDownload: "הורדה כקובץ",
         pfChecks: (a, b) => `${a}/${b} בדיקות`, pfOpen: "לתרגול",
+        safetyTitle: "לפני שמעלים או מחברים",
+        safety: "השתמשו בחומר ציבורי או בדוי. אל תעלו שמות, ציונים, תמונות או מסמכים של תלמידים או עמיתים. מה נשמר: הכלי שבו אתם משתמשים שומר לפי ההגדרות שלו; באתר הזה נשמר רק במכשיר שלכם. אין לכם חשבון או כפתור מתאים? אפשר להשתמש בתבנית להעתקה ולעבוד בלי לחבר שום דבר.",
+        status: (a, b, c) => [a && "עברתי על החומר", b && "שמרתי תוצר", c && "בדקתי לפי הקריטריונים"].filter(Boolean).join(" · "),
+        statusNone: "עוד לא התחלתם", statusHint: "המשך בלי תוצר אפשרי, אבל רק תוצר שנבדק לפי הקריטריונים מראה יכולת.",
+        saveFail: "השמירה בדפדפן נכשלה (אולי גלישה פרטית או שהזיכרון מלא). מה שכתבתם עדיין על המסך: העתיקו או הורידו אותו עכשיו. השמירה באתר היא רק בדפדפן הזה, לא בין מכשירים.",
       },
       heroEyebrow: "פקולטה למורים סקרנים", heroH1a: "ללמוד ללמד עם", heroH1b: "בינה מלאכותית",
       heroLead: "מסורת של הוראה, עם מכונה שלא מתעייפת. שלוש שאלות קצרות, ואתם בדרך לתואר של כבוד – בקצב שלכם, על הקורס שלכם.",
@@ -80,7 +85,10 @@
       taskFallback: { video: "רשמו דבר אחד מהסרטון שתנסו השבוע.", deck: "רשמו רעיון אחד מהמצגת שתיישמו בקורס שלכם.", lesson: "רשמו דבר אחד מהסדנה שתנסו בשיעור הקרוב." },
       deeper: "להעמקה", shortVideos: "סרטונים קצרים", moreDecks: "מצגות נוספות", moreHere: "רוצים עוד?",
       prev: "הקודם", next: "הבא", markWatched: "סימנתי שסיימתי", watched: "✓ סיימתי",
-      stepHead: (u, i, n, m) => `${u} · צעד ${i} מתוך ${n} · כ-${m} דק'`,
+      stepHead: (u, i, n, m) => `${u} · צעד ${i} מתוך ${n} · אומדן כ-${m} דק'`,
+      timeSplit: (w, d) => `צפייה או קריאה ${w} · תרגול ובדיקה ${d}`, estimate: "אומדן תכנון, עוד לא נמדד עם לומדים",
+      part: (n) => (n === 1 ? "ישיבה 1: צפייה וניבוי" : "ישיבה 2: תרגול ובדיקה"),
+      segTitle: "הקטע המומלץ למסלול", segPlay: (a, b) => `לצפייה ב-${a}–${b}`, segFull: (m) => `ההקלטה המלאה (${m} דק') היא להרחבה, לא חובה.`,
       finishNext: "סיימתי · לצעד הבא ←", finishLast: "סיימתי את המסלול", notYet: "עוד לא, אחזור לזה אחר כך", backToPath: "→ המסלול שלי",
       moreFrom: (t) => `עוד מ-${t}`, partOf: "מופיע בסדנה", moreInTopic: "עוד בנושא",
       kind: { rec: "הקלטת סדנה", recSession: "הקלטת מפגש", materials: "מצגת וחומרים", video: "סרטון קצר", deck: "מצגת לעיון" },
@@ -96,10 +104,15 @@
         why: "Why it matters", watch: "Before you start, watch:", tplN: (n) => `Template ${n}`, reflect: "Questions to think about (answer briefly below)", pitfall: "Common pitfall",
         quiz: "Check your understanding", right: "Correct!", wrong: "Not quite.", check: "Self-check", output: (o) => `What did you make? (${o})`,
         notePh: "Paste a link to your work, and answer the thinking questions briefly", saved: "Saved in your browser", allMine: "All my work",
-        nudge: "Before you move on: there is a short practice here. Ten minutes of practice is worth more than an hour of watching.", toPractice: "Go to practice", skip: "Continue anyway",
+        nudge: "Before you move on: there is a short practice here. A few minutes of practice is worth more than an hour of watching.", nudgeMins: (m) => `Before you move on: there is a practice of about ${m} minutes here. A short practice is worth more than an hour of watching.`, toPractice: "Go to practice", skip: "Continue anyway",
         inPath: "✎ Practice",
         pfTitle: "My work", pfIntro: "Everything you saved in the practices. It is stored only in this browser, so copy or download it from time to time.",
         pfEmpty: "Nothing saved yet. Practices appear in the main steps of your path.", pfCopy: "Copy all", pfDownload: "Download as file",
+        safetyTitle: "Before you upload or connect",
+        safety: "Use public or invented material. Do not upload names, grades, photos or documents of students or colleagues. What is kept: the tool you use keeps data by its own settings; this site keeps things only on your device. No account or matching button? Use the copyable template and work without connecting anything.",
+        status: (a, b, c) => [a && "went through the material", b && "saved an output", c && "checked against the criteria"].filter(Boolean).join(" · "),
+        statusNone: "not started yet", statusHint: "You may continue without an output, but only an output checked against the criteria shows ability.",
+        saveFail: "Saving in this browser failed (private browsing or full storage?). Your text is still on screen: copy or download it now. The site saves only in this browser, not across devices.",
         pfChecks: (a, b) => `${a}/${b} checks`, pfOpen: "Open practice",
       },
       heroEyebrow: "Faculty of Curious Teachers", heroH1a: "Learning to teach with", heroH1b: "artificial intelligence",
@@ -148,7 +161,10 @@
       taskFallback: { video: "Note one thing from the video to try this week.", deck: "Note one idea from the slides to use in your course.", lesson: "Note one thing from the workshop to try in your next class." },
       deeper: "Going deeper", shortVideos: "Short videos", moreDecks: "More slides", moreHere: "Want more?",
       prev: "Previous", next: "Next", markWatched: "Mark as done", watched: "✓ Done",
-      stepHead: (u, i, n, m) => `${u} · step ${i} of ${n} · ~${m} min`,
+      stepHead: (u, i, n, m) => `${u} · step ${i} of ${n} · est. ~${m} min`,
+      timeSplit: (w, d) => `watch or read ${w} · practise and check ${d}`, estimate: "planning estimate, not yet measured with learners",
+      part: (n) => (n === 1 ? "Sitting 1: watch and predict" : "Sitting 2: practise and check"),
+      segTitle: "Recommended segment for your path", segPlay: (a, b) => `Watch ${a}–${b}`, segFull: (m) => `The full recording (${m} min) is optional extra.`,
       finishNext: "Done · next step →", finishLast: "I finished the path", notYet: "Not yet, I'll come back later", backToPath: "← My path",
       moreFrom: (t) => `More from ${t}`, partOf: "Part of", moreInTopic: "More on this topic",
       kind: { rec: "Workshop recording", recSession: "Session recording", materials: "Slides and materials", video: "Short video", deck: "Slides" },
@@ -179,6 +195,25 @@
     const p = dur.split(":").map(Number);
     return p.length === 3 ? p[0] * 60 + p[1] : Math.max(1, p[0] + Math.round(p[1] / 60));
   };
+  const mmss = (sec) => { const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s2 = String(sec % 60).padStart(2, "0"); return h ? `${h}:${String(m).padStart(2, "0")}:${s2}` : `${m}:${s2}`; };
+  // ---------- time model (planning estimates, not measured times) ----------
+  // a step = material (the recommended segment, not the whole recording) + doing (the practice's own time, which includes checking)
+  const SEG_MIN = 180, SEG_MAX = 900; // a recommended segment is 3-15 minutes
+  function segmentFor(w, p) {
+    if (!w?.video?.id) return null;
+    const ch = w.chapters || [];
+    const start = p?.watch?.[0] || ch[0]?.[0];
+    if (!start) return null;
+    const from = toSec(start);
+    const next = ch.map((c) => toSec(c[0])).filter((x) => x > from).sort((a, b) => a - b)[0];
+    const full = w.video.dur ? toSec(w.video.dur) : null;
+    let to = next ?? full ?? from + SEG_MAX;
+    to = Math.min(to, from + SEG_MAX, full ?? Infinity);
+    to = Math.max(to, Math.min(from + SEG_MIN, full ?? from + SEG_MIN));
+    const title = p?.watch?.[1] || ch.find((c) => toSec(c[0]) === from)?.[1] || "";
+    return { from, to, title, vid: w.video.id };
+  }
+  const practiceMins = (ref) => { const m = String(PR[ref] ? L(PR[ref], "time") || "" : "").match(/\d+/); return m ? Number(m[0]) : 0; };
 
   // ---------- indexes ----------
   const lessons = [...S.workshops, ...S.bonus];
@@ -200,10 +235,29 @@
 
   // ---------- learner state ----------
   // refs: lesson id ("w3"), "v:<youtube id>", "g:<gamma id>"
+  // keep a damaged record instead of silently replacing it; new fields are added, old ones never reset
+  (() => {
+    try {
+      const raw = localStorage.getItem("journey-v1");
+      if (raw) { const v = JSON.parse(raw); if (!v || typeof v !== "object" || Array.isArray(v)) throw 0; }
+    } catch { try { localStorage.setItem("journey-v1-damaged-" + Date.now(), localStorage.getItem("journey-v1")); } catch {} }
+  })();
   let journey = { level: null, goal: null, goals: [], pace: null, done: [], ...store.get("journey-v1", {}) };
+  if (!Array.isArray(journey.done)) journey.done = [];
+  if (!journey.practice || typeof journey.practice !== "object") journey.practice = {};
   if (!Array.isArray(journey.goals)) journey.goals = [];
   if (journey.goal && !journey.goals.length) journey.goals = [journey.goal]; // older single-topic paths
-  const saveJourney = () => { journey.goal = journey.goals[0] || null; store.set("journey-v1", journey); };
+  let saveFailed = false;
+  const saveFailBanner = () =>
+    `<div class="notice notice--alert" role="alert" data-save-fail><p>${esc(t().pr.saveFail)}</p><p class="pf__tools"><button type="button" class="btn" data-pf-copy>${t().pr.pfCopy}</button><button type="button" class="btn btn--ghost" data-pf-download>${t().pr.pfDownload}</button></p></div>`;
+  const saveJourney = () => {
+    journey.goal = journey.goals[0] || null;
+    saveFailed = !store.set("journey-v1", journey);
+    const shown = app.querySelector("[data-save-fail]");
+    if (saveFailed && !shown) app.insertAdjacentHTML("afterbegin", saveFailBanner());
+    if (!saveFailed && shown) shown.remove();
+    return !saveFailed;
+  };
   const hasPath = () => !!(journey.level && journey.goals.length && journey.pace);
   const myGoals = () => journey.goals.map((id) => J.goals.find((x) => x.id === id)).filter(Boolean);
   const goalLabels = () => myGoals().map((g) => L(g, "label")).join(" · ");
@@ -219,16 +273,22 @@
   function resolveRef(ref) {
     if (ref.startsWith("v:")) {
       const v = allVideos.get(ref.slice(2));
-      return v && { ref, title: v.title, href: `#v-${v.id}`, kind: t().kind.video, mins: toMinutes(v.dur), type: "video" };
+      if (!v) return null;
+      const watch = toMinutes(v.dur), doing = practiceMins(ref) || 5;
+      return { ref, title: v.title, href: `#v-${v.id}`, kind: t().kind.video, watch, doing, mins: watch + doing, type: "video" };
     }
     if (ref.startsWith("g:")) {
       const id = ref.slice(2);
-      return { ref, title: gammaTitle(id), href: `#g-${id}`, kind: t().kind.deck, mins: 10, type: "deck" };
+      const doing = practiceMins(ref) || 5;
+      return { ref, title: gammaTitle(id), href: `#g-${id}`, kind: t().kind.deck, watch: 10, doing, mins: 10 + doing, type: "deck" };
     }
     const w = lessons.find((x) => x.id === ref);
     if (!w) return null;
-    const mins = w.video?.dur ? toMinutes(w.video.dur) : w.video ? 75 : 10;
-    return { ref, title: L(w, "title"), href: `#${w.id}`, kind: !w.video ? t().kind.materials : t().kind.rec, mins, type: "lesson", highlights: !!w.chapters?.length };
+    const seg = segmentFor(w, PR[ref]);
+    const watch = seg ? Math.round((seg.to - seg.from) / 60) : w.video ? 15 : 10;
+    const doing = practiceMins(ref) || 5;
+    const fullMins = w.video?.dur ? toMinutes(w.video.dur) : null;
+    return { ref, title: L(w, "title"), href: `#${w.id}`, kind: !w.video ? t().kind.materials : t().kind.rec, watch, doing, mins: watch + doing, seg, fullMins, type: "lesson", highlights: !!w.chapters?.length };
   }
 
   // the path: stages → steps → units sized to the learner's weekly time
@@ -256,11 +316,21 @@
     const cap = Math.max(30, journey.pace || 60);
     const units = [];
     let cur = null;
+    const add = (step, mins) => {
+      if (!cur || (cur.mins > 0 && cur.mins + mins > cap)) { cur = { steps: [], mins: 0 }; units.push(cur); }
+      cur.steps.push(step);
+      cur.mins += mins;
+    };
     pathSteps().forEach((step) => {
       if (step.optional) { (cur || (cur = { steps: [], mins: 0 })).steps.push(step); return; }
-      if (!cur || (cur.mins > 0 && cur.mins + step.mins > cap)) { cur = { steps: [], mins: 0 }; units.push(cur); }
-      cur.steps.push(step);
-      cur.mins += step.mins;
+      if (step.mins > cap && step.watch && step.doing) {
+        // two sittings: watch and predict now, practise and check next time
+        add({ ...step, part: 1, mins: step.watch }, step.watch);
+        cur = null;
+        add({ ...step, part: 2, mins: step.doing }, step.doing);
+        return;
+      }
+      add(step, step.mins);
     });
     if (cur && !units.includes(cur)) units.push(cur);
     return units.map((u, i) => ({ ...u, n: i + 1, done: u.steps.filter((s) => !s.optional).every((s) => isDone(s.ref)) }));
@@ -346,6 +416,15 @@
       : "";
   // structured practice where one exists, otherwise the short task
   const PR = { ...(S.practices || {}), ...(S.labs || {}) };
+  // steps that upload material or connect an account get the safety card, at every level
+  const SAFETY_IDS = new Set(["P1", "P6", "P7", "P8"]);
+  const SAFETY_RE = /העלו|העלאת|חברו|חיבור|דרייב|Drive|Gmail|ג'ימייל|מייל|Calendar|upload|connect/i;
+  const needsSafety = (p) => SAFETY_IDS.has(p.id) || SAFETY_RE.test((L(p, "steps") || []).join(" "));
+  const prStatus = (ref) => {
+    const p = PR[ref], st = journey.practice?.[p.id] || {};
+    const checks = L(p, "checks") || [];
+    return { done: isDone(ref), saved: !!st.note?.trim(), checked: checks.length > 0 && checks.every((_, i) => st.checks?.[i]) };
+  };
   const prState = (pid) => (journey.practice ||= {})[pid] ||= { checks: [], note: "", quiz: {} };
   const prTouched = (pid) => {
     const st = journey.practice?.[pid];
@@ -366,6 +445,7 @@
           ? `<p class="practice__watch">${x.watch} <button type="button" class="linkbtn" data-seek="${toSec(p.watch[0])}" data-vid="${esc(w.video.id)}"><span class="time">${esc(p.watch[0])}</span> · ${esc(p.watch[1])}</button></p>`
           : "";
       })()}
+      ${needsSafety(p) ? `<aside class="safety" role="note"><strong>${x.safetyTitle}:</strong> ${esc(x.safety)}</aside>` : ""}
       <div class="practice__block"><h3>${x.steps}</h3><ol>${L(p, "steps").map((s) => `<li>${esc(s)}</li>`).join("")}</ol></div>
       ${(() => {
         const tpls = L(p, "templates") || (p.template ? [L(p, "template")] : []);
@@ -394,6 +474,7 @@
       ${p.advanced ? `<details class="practice__adv"${journey.level === "advanced" ? " open" : ""}><summary>${x.advanced}</summary><p>${esc(L(p, "advanced"))}</p>${p.agentic ? `<p class="practice__agentic"><strong>${x.agentic}:</strong> ${esc(L(p, "agentic"))}</p>` : ""}</details>` : ""}
       <div class="practice__block"><label class="note-label" for="note-${p.id}">${x.output(esc(L(p, "output")))}</label>
         <textarea id="note-${p.id}" class="note" data-pnote rows="3" placeholder="${x.notePh}">${esc(st.note || "")}</textarea>
+        ${(() => { const ps = prStatus(ref); const txt = x.status(ps.done, ps.saved, ps.checked); return `<p class="practice__status"><strong>${txt || x.statusNone}</strong>${ps.checked ? "" : ` <span class="meta">${x.statusHint}</span>`}</p>`; })()}
         <p class="practice__foot"><span class="meta" data-saved hidden>${x.saved}</span><a href="#portfolio">${x.allMine}</a></p></div>
     </section>`;
   }
@@ -442,6 +523,10 @@
   }
 
   // the focused frame around any page that is a step of the learner's path
+  const segBox = (step) =>
+    step?.seg
+      ? `<p class="seg"><strong>${t().segTitle}:</strong> <button type="button" class="linkbtn" data-seek="${step.seg.from}" data-vid="${esc(step.seg.vid)}">${t().segPlay(mmss(step.seg.from), mmss(step.seg.to))}${step.seg.title ? ` · ${esc(step.seg.title)}` : ""}</button>${step.fullMins && step.fullMins > step.watch ? ` <span class="meta">${t().segFull(step.fullMins)}</span>` : ""}</p>`
+      : "";
   function guidedFrame(ref, title, media, more) {
     const info = stepInfo(ref);
     const nxt = (() => {
@@ -459,6 +544,7 @@
           <p class="why">${esc(whyFor(info.step.stage))}</p>
         </header>
         ${predictBox(ref)}
+        ${segBox(info.step)}
         ${media}
         ${taskBox(ref)}
         <div class="finish">
@@ -523,7 +609,7 @@
         <div class="section__head">
           <span class="eyebrow">${esc(L(lv, "label"))} · ${esc(goalLabels())}</span>
           <h1>${doneN ? t().nav.start : t().ready}</h1>
-          <p>${t().pathSummary(units.length, per, weeks)}</p>
+          <p>${t().pathSummary(units.length, per, weeks)} <span class="meta">(${t().estimate})</span></p>
         </div>
         <div class="bar bar--big" role="progressbar" aria-valuemin="0" aria-valuemax="${req.length}" aria-valuenow="${doneN}"><span style="width:${(doneN / req.length) * 100}%"></span></div>
         ${nxt ? `<a class="btn btn--big" href="${nxt.href}">${doneN ? t().continueBtn : t().start}: ${esc(nxt.title)} ←</a>` : finishedBox()}
@@ -537,7 +623,7 @@
                   .map(
                     (s) => `<li class="${isDone(s.ref) ? "is-done" : ""}">
                       <label class="check"><input type="checkbox" data-done="${esc(s.ref)}" ${isDone(s.ref) ? "checked" : ""}><span class="sr">${t().markWatched}</span></label>
-                      <a href="${s.href}"><span class="path__title">${esc(s.title)}</span><span class="path__kind">${esc(s.kind)} · ${t().mins(s.mins)}${s.highlights ? ` · ${t().hasHighlights}` : ""}${s.optional ? ` · ${t().optional}` : ""}${PR[s.ref] ? ` · <strong class="pr-mark">${t().pr.inPath}</strong>` : ""}</span></a>
+                      <a href="${s.href}"><span class="path__title">${esc(s.title)}</span><span class="path__kind">${s.part ? `${esc(t().part(s.part))} · ` : ""}${esc(s.kind)} · ${t().mins(s.mins)}${!s.part && s.watch && s.doing ? ` (${esc(t().timeSplit(t().mins(s.watch), t().mins(s.doing)))})` : ""}${s.highlights ? ` · ${t().hasHighlights}` : ""}${s.optional ? ` · ${t().optional}` : ""}${PR[s.ref] ? ` · <strong class="pr-mark">${t().pr.inPath}</strong>` : ""}</span></a>
                     </li>`
                   )
                   .join("")}</ol>
@@ -864,7 +950,7 @@
 
     const toast = flash ? `<p class="toast" role="status">${esc(flash)}</p>` : "";
     flash = null;
-    app.innerHTML = (t().enNotice ? `<p class="notice">${t().enNotice}</p>` : "") + toast + html;
+    app.innerHTML = (saveFailed ? saveFailBanner() : "") + (t().enNotice ? `<p class="notice">${t().enNotice}</p>` : "") + toast + html;
     app.dataset.view = view;
     if (jumpToPractice) { jumpToPractice = false; setTimeout(() => document.getElementById("practice")?.scrollIntoView(), 0); }
     else if (view === "home" && h) document.getElementById(h)?.scrollIntoView();
@@ -973,7 +1059,7 @@
         const box = document.createElement("div");
         box.className = "nudge";
         box.setAttribute("role", "status");
-        box.innerHTML = `<p>${t().pr.nudge}</p><div class="nudge__btns"><a class="btn" href="#practice" data-to-practice>${t().pr.toPractice}</a><button type="button" class="linkbtn" data-skip-practice="${esc(ref)}">${t().pr.skip}</button></div>`;
+        box.innerHTML = `<p>${practiceMins(ref) ? t().pr.nudgeMins(practiceMins(ref)) : t().pr.nudge}</p><div class="nudge__btns"><a class="btn" href="#practice" data-to-practice>${t().pr.toPractice}</a><button type="button" class="linkbtn" data-skip-practice="${esc(ref)}">${t().pr.skip}</button></div>`;
         fin.closest(".finish").after(box);
         return;
       }
@@ -1087,9 +1173,9 @@
       prState(pid)[e.target.matches("[data-ppredict]") ? "predict" : "note"] = e.target.value;
       clearTimeout(noteTimer);
       noteTimer = setTimeout(() => {
-        saveJourney();
+        const ok = saveJourney();
         const s = e.target.closest("[data-pid]").querySelector("[data-saved]");
-        if (s) s.hidden = false;
+        if (s) s.hidden = !ok;
       }, 400);
       return;
     }
