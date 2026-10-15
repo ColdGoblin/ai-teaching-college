@@ -630,11 +630,25 @@
 
   function finishedBox() {
     return `<div class="finished"><h2>${t().allDoneTitle}</h2><p>${t().allDoneText}</p>
+      ${window.Diploma ? `<p><button type="button" class="btn btn--big" data-diploma>קבלת הדיפלומה</button></p>` : ""}
       <div class="finished__goals"><span>${t().otherGoal}</span>${J.goals
         .filter((g) => !journey.goals.includes(g.id))
         .map((g) => `<button type="button" class="choice choice--small" data-switch-goal="${g.id}">${esc(L(g, "label"))}</button>`)
         .join("")}</div></div>`;
   }
+
+  // diploma: a visible sample on the home page (made-up name), the real one from finishedBox()
+  let sampleLevel = "beginner";
+  function diplomaSample() {
+    if (!window.Diploma) return "";
+    return `<section class="section diploma-sample" id="diploma-sample">
+      <h2 class="small-h">כך תיראה הדיפלומה שלכם</h2>
+      <div class="dp-picker" role="group" aria-label="רמת הדיפלומה">${J.levels.map((l) => `<button type="button" class="btn btn--ghost" data-dp-level="${l.id}" aria-pressed="${l.id === sampleLevel}">${esc(l.label)}</button>`).join("")}</div>
+      <div data-dp-sample>${Diploma.html(sampleLevel, "דנה לוי, דוגמה", [J.goals[0].short])}</div>
+      <p class="dp-note">בסיום המסלול תקבלו דיפלומה עם השם שלכם. היא נוצרת במכשיר שלכם, ללא חשבון וללא שליחת נתונים.</p>
+    </section>`;
+  }
+  const diplomaTopics = () => myGoals().map((g) => g.short || g.label);
 
   // ---------- pages ----------
   function aboutSection() {
@@ -693,6 +707,7 @@
           <h2 class="small-h">${t().howTitle}</h2>
           <ol class="how">${t().how.map(([a, b], i) => `<li><span class="how__n">${ROMAN[i]}</span><strong>${a}</strong><span>${b}</span></li>`).join("")}</ol>
         </section>
+        ${diplomaSample()}
         ${aboutSection()}`;
     }
     const nxt = nextStep();
@@ -1111,6 +1126,15 @@
       go("#start");
       return;
     }
+    const dl = e.target.closest("[data-dp-level]");
+    if (dl) {
+      sampleLevel = dl.dataset.dpLevel;
+      const box = app.querySelector("[data-dp-sample]");
+      if (box) box.innerHTML = Diploma.html(sampleLevel, "דנה לוי, דוגמה", [J.goals[0].short]);
+      app.querySelectorAll("[data-dp-level]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.dpLevel === sampleLevel)));
+      return;
+    }
+    if (e.target.closest("[data-diploma]")) { Diploma.open(journey.level, diplomaTopics()); return; }
     const sw = e.target.closest("[data-switch-goal]");
     if (sw) { journey.goals = [...journey.goals, sw.dataset.switchGoal]; saveJourney(); go("#start"); return; }
 

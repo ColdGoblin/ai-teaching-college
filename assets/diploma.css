@@ -1,0 +1,61 @@
+/* Diploma (Hexweaver's design, certificates-mockup.html, 15 Oct). All classes prefixed dp- so they never touch the site's own. */
+.dp-cert{--dp-paper:#f7efdc;--dp-paper2:#efe2c4;--dp-ink:#1c2342;--dp-navy:#14264f;--dp-wine:#8b1e2d;--dp-gold:#b08a3e;--dp-gold-hi:#e8c872;--dp-gold-lo:#8a6a28;--dp-muted:#6b5f48;
+ --dp-f-display:"Frank Ruhl Libre","David Libre","Times New Roman",serif;--dp-f-body:"David Libre","Frank Ruhl Libre","Times New Roman",serif;
+ container-type:inline-size;--accent:var(--dp-gold-lo);--accent2:var(--dp-gold);position:relative;width:min(297mm,100%);max-width:100%;aspect-ratio:297/210;color:var(--dp-ink);font-family:var(--dp-f-body);line-height:1.5;box-shadow:0 12px 34px #0004;overflow:hidden;margin-inline:auto;
+ background:radial-gradient(ellipse at 50% 45%,#fffaf0 0%,var(--dp-paper) 55%,var(--dp-paper2) 100%)}
+.dp-cert *{box-sizing:border-box}
+.dp-cert.dp-l2{--accent:var(--dp-navy);--accent2:#2e3a66}
+.dp-cert.dp-l3{--accent:var(--dp-wine);--accent2:#a8293b}
+.dp-cert svg.dp-bg{position:absolute;inset:0;width:100%;height:100%}
+.dp-inner{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;padding:5.2% 13% 5%}
+.dp-brand{margin-bottom:.1em;font-family:var(--dp-f-display);font-weight:700;color:var(--accent);font-size:1.78cqw;letter-spacing:.08em}
+.dp-title{padding:.04em .2em;font-family:var(--dp-f-display);font-weight:900;font-size:5.2cqw;line-height:1.05;margin:0;color:var(--accent);display:flex;align-items:center;justify-content:center;gap:.45em}
+.dp-title span{background:linear-gradient(180deg,var(--dp-gold-hi),var(--dp-gold) 55%,var(--dp-gold-lo));-webkit-background-clip:text;background-clip:text;color:transparent}
+.dp-grant{font-family:var(--dp-f-display);font-weight:500;color:var(--dp-muted);font-size:1.64cqw;margin-top:.2em}
+.dp-cheer{font-family:var(--dp-f-display);font-weight:500;font-size:2cqw;color:var(--dp-muted)}
+.dp-name{font-family:var(--dp-f-display);font-weight:700;font-size:4.5cqw;padding:0 .8em;min-height:1.25em;line-height:1.2}
+.dp-name.dp-empty{color:#a79b82;font-weight:500}
+.dp-name{white-space:nowrap}.dp-name.dp-long{font-size:3.6cqw}.dp-name.dp-xlong{font-size:2.9cqw}
+.dp-flourish{display:block;width:min(52%,560px);height:auto;aspect-ratio:400/24;flex:none;color:var(--accent2);margin:.3em auto}
+.dp-track{font-size:2.07cqw}
+.dp-track b{color:var(--accent)}
+.dp-bottom{width:100%;display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:2%}
+.dp-side{font-size:1.31cqw;color:var(--dp-muted)}
+.dp-side:first-child{text-align:start}.dp-side:last-child{text-align:end}
+.dp-sealbox{display:grid;justify-items:center;gap:2px}
+.dp-levelname{font-family:var(--dp-f-display);font-weight:700;color:var(--accent);font-size:1.71cqw}
+.dp-fine{font-size:1.11cqw;color:var(--dp-muted);max-width:92%;margin:0}
+.dp-waxseal{position:relative;width:12.5cqw;aspect-ratio:100/124;filter:drop-shadow(0 4px 5px #0006)}
+.dp-waxseal svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.dp-logo{position:absolute;left:50%;top:41.9%;width:57%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;overflow:hidden;isolation:isolate;background:var(--wax-mid);
+ box-shadow:inset 0 3px 7px #000a,inset 0 -2px 4px #fff4,0 1px 0 #fff5,0 0 0 2px var(--wax-dark)}
+.dp-logo img{position:absolute;inset:-3%;width:106%;height:106%;max-width:none;object-fit:cover;filter:grayscale(1) contrast(1.45) brightness(1.08)}
+.dp-logo img.dp-a{mix-blend-mode:overlay;opacity:.95}
+.dp-logo img.dp-b{mix-blend-mode:multiply;opacity:.38}
+.dp-logo::after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 32% 26%,#fff6 0,#fff0 38%),radial-gradient(circle at 70% 78%,#0005 0,#0000 45%)}
+.dp-l1{--wax-hi:#e7c46a;--wax-mid:#b9852b;--wax-dark:#6f4c12}
+.dp-l2{--wax-hi:#5d7cc8;--wax-mid:#26438a;--wax-dark:#0f1f4a}
+.dp-l3{--wax-hi:#d4546a;--wax-mid:#9b2236;--wax-dark:#521019}
+.dp-stars{display:flex;gap:3px;justify-content:center;color:var(--accent2);margin-bottom:1px}
+.dp-stars svg{width:1.6cqw;height:auto}
+
+/* home-page sample and the finish dialog */
+.diploma-sample{min-width:0;max-width:100%}
+.diploma-sample [data-dp-sample]{min-width:0}
+.diploma-sample .dp-picker{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 16px}
+.diploma-sample .dp-picker button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.diploma-sample .dp-note{color:var(--muted,#6b5f48);font-size:var(--step--1,.95rem);margin-top:12px}
+.dp-dialog{width:min(1000px,96vw);max-height:94vh;overflow:auto;border:0;border-radius:12px;padding:16px;background:var(--paper);color:var(--ink)}
+.dp-dialog::backdrop{background:#0008}
+.dp-dialog label{display:grid;gap:4px;font-weight:700;margin-bottom:10px}
+.dp-dialog input{font:inherit;padding:10px 12px;min-height:44px;border:2px solid var(--ink);border-radius:8px;background:#fff;width:min(340px,100%)}
+.dp-dialog .dp-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.dp-dialog .dp-meta{font-size:var(--step--1,.95rem);color:var(--muted,#6b5f48)}
+
+@page{size:A4 landscape;margin:0}
+@media print{
+  body.dp-printing > :not(.dp-print){display:none!important}
+  body.dp-printing{background:#fff;margin:0}
+  .dp-print .dp-cert{width:297mm;height:210mm;aspect-ratio:auto;box-shadow:none}
+  .dp-print *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
