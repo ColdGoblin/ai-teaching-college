@@ -238,3 +238,14 @@ a { color: var(--navy); }
 .seg { margin: 0; padding: 10px 14px; border-inline-start: 4px solid var(--navy); background: var(--accent-soft); }
 .safety { margin: 0 0 12px; padding: 10px 14px; border-radius: 8px; background: #fff6dc; border: 1.5px solid #c99a1e; color: #3d2e05; }
 .practice__status { margin: 0 0 6px; }
+
+/* Authored pilots: preserve the college visual language. */
+.pilot,.pilot-index {max-width:74ch;margin-inline:auto;padding-block:1.5rem 3rem;overflow-wrap:anywhere}
+.pilot h2 {margin-block:2rem .7rem}.pilot li {margin-block:.5rem}.pilot-index li {padding-block:1rem;border-bottom:1px solid var(--tan)}
+.pilot-modes,.pilot-tools {display:flex;flex-wrap:wrap;gap:.7rem;margin-block:1rem}.pilot-modes .btn,.pilot-tools .btn {min-height:44px}
+.pilot-example {padding:1.3rem;background:var(--card);border:1px solid var(--tan);border-radius:12px}
+.pilot textarea {box-sizing:border-box;width:100%;font:inherit;line-height:1.7;color:var(--ink);background:var(--card);border:1px solid var(--tan);border-radius:10px;padding:1rem;margin-block:.5rem}
+.pilot fieldset {margin-block:1.5rem;border:1px solid var(--tan);border-radius:10px;padding:1rem}.pilot-check {display:flex;align-items:flex-start;gap:.7rem;min-height:44px;margin-block:.4rem}.pilot-check input {margin-block-start:.65rem;flex:none}
+.pilot-answers {display:grid;gap:.6rem}.pilot-answers .btn {white-space:normal;min-height:44px;text-align:start}.pilot details summary {cursor:pointer;min-height:44px;padding-block:.5rem}
+.pilot :focus-visible {outline:3px solid var(--navy);outline-offset:3px}.pilot-time {font-weight:700}.pilot-entry {margin-block:1rem}
+@media(max-width:480px){.pilot-modes {display:grid;grid-template-columns:1fr}.pilot-tools {display:grid}.pilot h1{font-size:2rem}.pilot-example{padding:1rem}}

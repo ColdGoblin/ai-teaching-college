@@ -35,8 +35,8 @@
         pfChecks: (a, b) => `${a}/${b} בדיקות`, pfOpen: "לתרגול",
         safetyTitle: "לפני שמעלים או מחברים",
         safety: "השתמשו בחומר ציבורי או בדוי. אל תעלו שמות, ציונים, תמונות או מסמכים של תלמידים או עמיתים. מה נשמר: הכלי שבו אתם משתמשים שומר לפי ההגדרות שלו; באתר הזה נשמר רק במכשיר שלכם. אין לכם חשבון או כפתור מתאים? אפשר להשתמש בתבנית להעתקה ולעבוד בלי לחבר שום דבר.",
-        status: (a, b, c) => [a && "עברתי על החומר", b && "שמרתי תוצר", c && "בדקתי לפי הקריטריונים"].filter(Boolean).join(" · "),
-        statusNone: "עוד לא התחלתם", statusHint: "המשך בלי תוצר אפשרי, אבל רק תוצר שנבדק לפי הקריטריונים מראה יכולת.",
+        status: (a, b, c) => [a && "עברתי על החומר", b && "שמרתי תוצר", c && "בדקתי לפי הקריטריונים, בדיווח עצמי"].filter(Boolean).join(" · "),
+        statusNone: "עוד לא התחלתם", statusHint: "אפשר להמשיך בלי תוצר. סימון הקריטריונים הוא בדיקה עצמית, ואינו ציון או אישור איכות חיצוני.",
         saveFail: "השמירה בדפדפן נכשלה (אולי גלישה פרטית או שהזיכרון מלא). מה שכתבתם עדיין על המסך: העתיקו או הורידו אותו עכשיו. השמירה באתר היא רק בדפדפן הזה, לא בין מכשירים.",
       },
       heroEyebrow: "פקולטה למורים סקרנים", heroH1a: "ללמוד ללמד עם", heroH1b: "בינה מלאכותית",
@@ -88,7 +88,7 @@
       stepHead: (u, i, n, m) => `${u} · צעד ${i} מתוך ${n} · אומדן כ-${m} דק'`,
       timeSplit: (w, d) => `צפייה או קריאה ${w} · תרגול ובדיקה ${d}`, estimate: "אומדן תכנון, עוד לא נמדד עם לומדים",
       part: (n) => (n === 1 ? "ישיבה 1: צפייה וניבוי" : "ישיבה 2: תרגול ובדיקה"),
-      segTitle: "הקטע המומלץ למסלול", segPlay: (a, b) => `לצפייה ב-${a}–${b}`, segFull: (m) => `ההקלטה המלאה (${m} דק') היא להרחבה, לא חובה.`,
+      segTitle: "הצעת קטע לפי כותרות הפרקים, תוכנו טרם אומת", segPlay: (a, b) => `לצפייה ב-${a}–${b}`, segFull: (m) => `ההקלטה המלאה (${m} דק') היא להרחבה, לא חובה.`,
       finishNext: "סיימתי · לצעד הבא ←", finishLast: "סיימתי את המסלול", notYet: "עוד לא, אחזור לזה אחר כך", backToPath: "→ המסלול שלי",
       moreFrom: (t) => `עוד מ-${t}`, partOf: "מופיע בסדנה", moreInTopic: "עוד בנושא",
       kind: { rec: "הקלטת סדנה", recSession: "הקלטת מפגש", materials: "מצגת וחומרים", video: "סרטון קצר", deck: "מצגת לעיון" },
@@ -110,8 +110,8 @@
         pfEmpty: "Nothing saved yet. Practices appear in the main steps of your path.", pfCopy: "Copy all", pfDownload: "Download as file",
         safetyTitle: "Before you upload or connect",
         safety: "Use public or invented material. Do not upload names, grades, photos or documents of students or colleagues. What is kept: the tool you use keeps data by its own settings; this site keeps things only on your device. No account or matching button? Use the copyable template and work without connecting anything.",
-        status: (a, b, c) => [a && "went through the material", b && "saved an output", c && "checked against the criteria"].filter(Boolean).join(" · "),
-        statusNone: "not started yet", statusHint: "You may continue without an output, but only an output checked against the criteria shows ability.",
+        status: (a, b, c) => [a && "went through the material", b && "saved an output", c && "self-checked against the criteria"].filter(Boolean).join(" · "),
+        statusNone: "not started yet", statusHint: "You may continue without an output. Criteria checks are self-reported, not an external quality assessment.",
         saveFail: "Saving in this browser failed (private browsing or full storage?). Your text is still on screen: copy or download it now. The site saves only in this browser, not across devices.",
         pfChecks: (a, b) => `${a}/${b} checks`, pfOpen: "Open practice",
       },
@@ -323,13 +323,6 @@
     };
     pathSteps().forEach((step) => {
       if (step.optional) { (cur || (cur = { steps: [], mins: 0 })).steps.push(step); return; }
-      if (step.mins > cap && step.watch && step.doing) {
-        // two sittings: watch and predict now, practise and check next time
-        add({ ...step, part: 1, mins: step.watch }, step.watch);
-        cur = null;
-        add({ ...step, part: 2, mins: step.doing }, step.doing);
-        return;
-      }
       add(step, step.mins);
     });
     if (cur && !units.includes(cur)) units.push(cur);
@@ -423,7 +416,7 @@
   const prStatus = (ref) => {
     const p = PR[ref], st = journey.practice?.[p.id] || {};
     const checks = L(p, "checks") || [];
-    return { done: isDone(ref), saved: !!st.note?.trim(), checked: checks.length > 0 && checks.every((_, i) => st.checks?.[i]) };
+    return { done: isDone(ref), saved: !!st.note?.trim() && !saveFailed, checked: !!st.note?.trim() && !saveFailed && checks.length > 0 && checks.every((_, i) => st.checks?.[i]) };
   };
   const prState = (pid) => (journey.practice ||= {})[pid] ||= { checks: [], note: "", quiz: {} };
   const prTouched = (pid) => {
@@ -510,7 +503,7 @@
     return `${crumbs([])}<section class="section">${head("", x.pfTitle, x.pfIntro)}${body}</section>`;
   }
   const linkify = (s) => esc(s).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/\n/g, "<br>");
-  function portfolioText() {
+  function portfolioLegacyText() {
     return Object.entries(PR)
       .filter(([, p]) => prTouched(p.id))
       .map(([, p]) => {
@@ -930,13 +923,82 @@
     box.hidden = false;
   }
 
+  // Three authored pilots; old journey fields and practice records remain intact.
+  const pilotModes = {regular:'תרגול רגיל',advanced:'תרגול מתקדם',deepening:'העמקה אופציונלית'};
+  const pilotData = () => S.pilots || [];
+  function pilotState(id) {
+    if (!journey.pilots || typeof journey.pilots !== 'object' || Array.isArray(journey.pilots)) journey.pilots={};
+    const p=journey.pilots[id] ||= {mode:'regular',outputs:{}};
+    p.outputs ||= {};
+    return p;
+  }
+  function pilotOutput(id,mode) {
+    const p=pilotState(id),v=p.outputs[mode] ||= {note:'',checks:[],attempts:[],persisted:false};
+    if(!Array.isArray(v.checks))v.checks=[];
+    if(!Array.isArray(v.attempts))v.attempts=[];
+    return v;
+  }
+  function pilotStatus(id,mode) {
+    const p=pilotData().find(p=>p.id===id),o=pilotOutput(id,mode);
+    const has=typeof o.note==='string' && !!o.note.trim();
+    if(!has)return 'עדיין אין תוצר לבדיקה.';
+    if(!o.persisted)return 'התוצר בזיכרון הפעיל בלבד. העתיקו או הורידו אותו לפני יציאה.';
+    return p.criteria.every((_,i)=>o.checks[i]) ? 'התוצר נשמר ונבדק לפי הקריטריונים, בדיווח עצמי.' : 'התוצר נשמר בדפדפן הזה. הבדיקה העצמית עדיין לא הושלמה.';
+  }
+  function savePilot(id,mode) {
+    const o=pilotOutput(id,mode);o.persisted=true;
+    if(!saveJourney())o.persisted=false;
+    const label=app.querySelector('[data-pilot-status]');
+    if(label)label.textContent=pilotStatus(id,mode);
+  }
+  function pilotPortfolioText() {
+    const parts=[];
+    for(const p of pilotData())for(const mode of ['regular','advanced']){
+      const o=journey.pilots?.[p.id]?.outputs?.[mode];
+      if(o?.note?.trim())parts.push(`## ${p.title}: ${pilotModes[mode]}\n${o.note}\n\n${p.criteria.map((c,i)=>`${o.checks?.[i]?'[x]':'[ ]'} ${c}`).join('\n')}\n\nניסיונות הבנה: ${(o.attempts||[]).map(a=>a.correct?'נכון':'טעון תיקון').join(', ')}`);
+    }
+    return parts.join('\n\n');
+  }
+  function portfolioText(){return [portfolioLegacyText(),pilotPortfolioText()].filter(Boolean).join('\n\n');}
+  function pilotsPage(){
+    return `${crumbs([])}<section class="pilot-index"><h1>תוצר אחד שאפשר להתחיל היום</h1><p>שלושה מקטעים מתוך הספרייה הקיימת. בכל אחד תרגול רגיל, תרגול מתקדם והעמקה אופציונלית. אפשר לעבוד עם הדוגמאות הבדויות גם בלי כלי חיצוני.</p><ol>${pilotData().map(p=>`<li><h2><a href="#pilot-${p.id}">${esc(p.title)}</a></h2><p>${esc(p.goal)}</p><p class="meta">אומדן לתרגול הרגיל: כשלושים דקות. למתקדם: כ־${p.advancedMinutes} דקות. הזמנים טרם נמדדו עם לומדים.</p></li>`).join('')}</ol><p><a href="#library">הספרייה המלאה נשארת פתוחה</a></p></section>`;
+  }
+  function pilotPage(p){
+    const st=pilotState(p.id),mode=pilotModes[st.mode]?st.mode:'regular';
+    const nav=`<div class="pilot-modes" role="group" aria-label="בחירת אופן עבודה">${Object.entries(pilotModes).map(([k,v])=>`<button type="button" class="btn${mode===k?'':' btn--ghost'}" data-pilot-mode="${k}" data-pilot-id="${p.id}" aria-pressed="${mode===k}">${v}</button>`).join('')}</div>`;
+    const head=`${crumbs([['#pilots','מקטעים לתרגול']])}<section class="pilot" data-pilot="${p.id}"><h1>${esc(p.title)}</h1><p class="lead">${esc(p.goal)}</p>${nav}<p class="meta">הבחירות נפרדות. אין צורך להשלים תרגול רגיל לפני כניסה למתקדם; ההעמקה אינה חובה.</p>`;
+    if(mode==='deepening')return `${head}<h2>להעמקה, לפי בחירתכם</h2><p>${esc(p.deeper)}</p><ul>${p.links.map(([href,label])=>`<li><a href="${href}">${esc(label)}</a></li>`).join('')}</ul><p>ההקלטות, המצגות וכל התרגילים הקיימים נשארו באתר. אין כאן חובה להיכנס לכלי או לפרסם תוצר.</p></section>`;
+    const o=pilotOutput(p.id,mode),steps=p[mode],last=o.attempts.at(-1);
+    const total=Object.values(p.time).reduce((a,b)=>a+b,0);
+    const time=mode==='regular'?`חומר ${p.time.material} · עשייה ${p.time.doing} · בדיקה ${p.time.checking} · פתיחת כלי ${p.time.setup}, בסך הכול ${total} דקות`:`כ־${p.advancedMinutes} דקות, ללא צפיית חובה`;
+    return `${head}<p class="pilot-time">אומדן תכנון: ${time}. לא נמדד עדיין עם לומדים. חומר החובה הוא הדוגמה הכתובה; ההקלטה להעמקה.</p><aside class="safety" role="note"><strong>לפני שמתחילים:</strong> השתמשו בחומר ציבורי או בדוי בלבד. אל תעלו מידע מזהה של תלמידים או עמיתים. כלי חיצוני שומר לפי תנאיו; האתר שומר תוצרים רק בדפדפן הזה, בלי סנכרון למכשירים אחרים.</aside><h2>${pilotModes[mode]}</h2><p>${esc(p.preparation)}</p><ol>${steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol><h2>דוגמה לעבודה בלי כלי חיצוני</h2><div class="pilot-example"><p>${esc(p.sourceText)}</p><p><strong>תוצר לדוגמה:</strong> ${esc(p.example)}</p></div><details><summary>דוגמה שדורשת תיקון</summary><p>${esc(p.weak)}</p></details><h2>התוצר שלכם</h2><label for="pilot-note-${p.id}">${esc(p.output)}</label><textarea id="pilot-note-${p.id}" data-pilot-note="${p.id}" data-mode="${mode}" rows="7">${esc(o.note||'')}</textarea><fieldset><legend>בדיקה עצמית של התוצר</legend>${p.criteria.map((c,i)=>`<label class="pilot-check"><input type="checkbox" data-pilot-check="${i}" data-pilot-id="${p.id}" data-mode="${mode}" ${o.checks[i]?'checked':''}><span>${esc(c)}</span></label>`).join('')}</fieldset><p role="status" data-pilot-status>${esc(pilotStatus(p.id,mode))}</p><p class="meta">סימון עצמי אינו ציון אוטומטי או אישור איכות חיצוני.</p><div class="pilot-tools"><button type="button" class="btn" data-pilot-export="copy">העתקת התוצרים</button><button type="button" class="btn btn--ghost" data-pilot-export="download">הורדת התוצרים</button><a href="#portfolio">תיק התוצרים הקיים</a></div><section class="pilot-quiz"><h2>שאלת הבנה</h2><p>${esc(p.quiz.q)}</p><div class="pilot-answers">${p.quiz.options.map((q,i)=>`<button type="button" class="btn btn--ghost" data-pilot-answer="${i}" data-pilot-id="${p.id}" data-mode="${mode}">${esc(q)}</button>`).join('')}</div>${last?`<p role="status">${last.correct?'נכון. הסבירו לעצמכם מדוע.':`כדאי לבדוק שוב. רמז: ${esc(p.quiz.hint)} אפשר לבחור תשובה נוספת.`}</p><p class="meta">נשמרו ${o.attempts.length} ניסיונות. הניסיון הראשון אינו נמחק כשמנסים שוב.</p>`:''}</section></section>`;
+  }
+  app.addEventListener('click',async e=>{
+    const mode=e.target.closest('[data-pilot-mode]');
+    if(mode){const id=mode.dataset.pilotId;pilotState(id).mode=mode.dataset.pilotMode;saveJourney();route();app.querySelector(`[data-pilot-mode="${mode.dataset.pilotMode}"]`)?.focus();return;}
+    const answer=e.target.closest('[data-pilot-answer]');
+    if(answer){const id=answer.dataset.pilotId,m=answer.dataset.mode,p=pilotData().find(p=>p.id===id),a=Number(answer.dataset.pilotAnswer);pilotOutput(id,m).attempts.push({answer:a,correct:a===p.quiz.correct,at:new Date().toISOString()});savePilot(id,m);route();app.querySelector(`[data-pilot-answer="${a}"]`)?.focus();return;}
+    const exp=e.target.closest('[data-pilot-export]');if(!exp)return;
+    const text=portfolioText();
+    if(exp.dataset.pilotExport==='copy'){
+      try{await navigator.clipboard.writeText(text);exp.textContent='הועתק';}
+      catch{const ta=document.createElement('textarea');ta.value=text;ta.readOnly=true;ta.setAttribute('aria-label','התוצרים להעתקה ידנית');exp.closest('.pilot-tools').after(ta);ta.focus();ta.select();}
+    }else{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+text],{type:'text/markdown;charset=utf-8'}));a.download='my-teaching-pilots.md';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+  });
+  let pilotTimer;
+  app.addEventListener('input',e=>{const note=e.target.closest('[data-pilot-note]');if(!note)return;const id=note.dataset.pilotNote,m=note.dataset.mode;pilotOutput(id,m).note=note.value;pilotOutput(id,m).persisted=false;clearTimeout(pilotTimer);pilotTimer=setTimeout(()=>savePilot(id,m),400);});
+  app.addEventListener('change',e=>{const c=e.target.closest('[data-pilot-check]');if(!c)return;const id=c.dataset.pilotId,m=c.dataset.mode;pilotOutput(id,m).checks[Number(c.dataset.pilotCheck)]=c.checked;savePilot(id,m);});
+
+
   // ---------- router ----------
   const MATERIAL_ROUTES = new Set(["all", "kaye", "bonus", "mini", "library"]);
   function route() {
     const h = decodeURIComponent(location.hash.slice(1));
     const lesson = lessons.find((x) => x.id === h);
     let html, view = h || "home";
-    if (lesson) html = lessonPage(lesson);
+    if (h === 'pilots') html = pilotsPage();
+    else if (h.startsWith('pilot-') && pilotData().some(p=>p.id===h.slice(6))) html = pilotPage(pilotData().find(p=>p.id===h.slice(6)));
+    else if (lesson) html = lessonPage(lesson);
     else if (h === "start") html = hasPath() ? pathPage() : onboarding();
     else if (h === "all") html = allPage();
     else if (h === "portfolio") html = portfolioPage();
@@ -948,6 +1010,7 @@
     else if (h.startsWith("g-")) html = gammaPage(allGammas.get(h.slice(2)) || { id: h.slice(2), title: t().kind.deck });
     else { html = home(); view = "home"; }
 
+    if (['home','start','w1','w6','w7'].includes(view)) html = `<p class="pilot-entry"><a class="btn btn--ghost" href="#pilots">מקטעים קצרים: רגיל, מתקדם והעמקה</a></p>` + html;
     const toast = flash ? `<p class="toast" role="status">${esc(flash)}</p>` : "";
     flash = null;
     app.innerHTML = (saveFailed ? saveFailBanner() : "") + (t().enNotice ? `<p class="notice">${t().enNotice}</p>` : "") + toast + html;
@@ -957,6 +1020,7 @@
     else window.scrollTo(0, 0);
 
     const navKey = lesson || h.startsWith("v-") || h.startsWith("g-") ? (stepInfo(lesson ? lesson.id : h.replace(/^v-/, "v:").replace(/^g-/, "g:")) ? "start" : "all") : MATERIAL_ROUTES.has(h) ? "all" : h;
+    if (!nav.querySelector('[href="#pilots"]')) nav.insertAdjacentHTML('beforeend','<a href="#pilots">מקטעים לתרגול</a>');
     document.querySelectorAll("#nav a").forEach((a) => a.setAttribute("aria-current", a.getAttribute("href") === "#" + navKey ? "page" : "false"));
     closeMenu();
     closeSearch();
@@ -995,6 +1059,7 @@
     lang = lang === "he" ? "en" : "he";
     store.set("lang", lang);
     chrome();
+  nav.insertAdjacentHTML('beforeend','<a href="#pilots">מקטעים לתרגול</a>');
     route();
   });
   q.addEventListener("input", () => runSearch(q.value));
