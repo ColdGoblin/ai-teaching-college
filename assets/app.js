@@ -200,7 +200,7 @@
   // a step = material (the recommended segment, not the whole recording) + doing (the practice's own time, which includes checking)
   const SEG_MIN = 180, SEG_MAX = 900; // a recommended segment is 3-15 minutes
   function segmentFor(w, p) {
-    if (!w?.video?.id) return null;
+    if (w?.primaryVideo || !w?.video?.id) return null;
     const ch = w.chapters || [];
     const start = p?.watch?.[0] || ch[0]?.[0];
     if (!start) return null;
@@ -410,7 +410,7 @@
   // structured practice where one exists, otherwise the short task
   const PR = { ...(S.practices || {}), ...(S.labs || {}) };
   // steps that upload material or connect an account get the safety card, at every level
-  const SAFETY_IDS = new Set(["P1", "P6", "P7", "P8"]);
+  const SAFETY_IDS = new Set(["P1", "P5", "P6", "P7", "P8"]);
   const SAFETY_RE = /העלו|העלאת|חברו|חיבור|דרייב|Drive|Gmail|ג'ימייל|מייל|Calendar|upload|connect/i;
   const needsSafety = (p) => SAFETY_IDS.has(p.id) || SAFETY_RE.test((L(p, "steps") || []).join(" "));
   const prStatus = (ref) => {
@@ -438,7 +438,7 @@
           ? `<p class="practice__watch">${x.watch} <button type="button" class="linkbtn" data-seek="${toSec(p.watch[0])}" data-vid="${esc(w.video.id)}"><span class="time">${esc(p.watch[0])}</span> · ${esc(p.watch[1])}</button></p>`
           : "";
       })()}
-      ${needsSafety(p) ? `<aside class="safety" role="note"><strong>${x.safetyTitle}:</strong> ${esc(x.safety)}</aside>` : ""}
+      ${needsSafety(p) ? `<aside class="safety" role="note"><strong>${x.safetyTitle}:</strong> ${esc(S.privacyNotice || x.safety)}</aside>` : ""}
       <div class="practice__block"><h3>${x.steps}</h3><ol>${L(p, "steps").map((s) => `<li>${esc(s)}</li>`).join("")}</ol></div>
       ${(() => {
         const tpls = L(p, "templates") || (p.template ? [L(p, "template")] : []);
@@ -772,12 +772,13 @@
     const list = listOf(w);
     const i = list.indexOf(w);
     const unit = t().workshop;
+    const mediaVideo = w.primaryVideo || w.video;
     const tabs = [];
     tabs.push([
       "rec",
       t().tabRec,
-      w.video
-        ? `<div class="panel__head"><span></span><a href="${w.video.drive ? driveView(w.video.drive) : ytWatch(w.video.id)}" target="_blank" rel="noopener">${w.video.drive ? t().openDrive : t().openYT}</a></div>${player(w.video, unit + " " + (i + 1), L(w, "title"))}`
+      mediaVideo
+        ? `<div class="panel__head"><span></span><a href="${mediaVideo.drive ? driveView(mediaVideo.drive) : ytWatch(mediaVideo.id)}" target="_blank" rel="noopener">${mediaVideo.drive ? t().openDrive : t().openYT}</a></div>${player(mediaVideo, unit + " " + (i + 1), L(w, "title"))}`
         : `<p class="empty">${w.recording === "hidden" ? t().recHidden : t().noVideoText(unit)}</p>`,
     ]);
     tabs.push([
@@ -790,14 +791,14 @@
         : `<p class="empty">${t().noDeckText(unit)}</p>`,
     ]);
     if (w.files?.length) tabs.push(["files", t().tabFiles, linkList(w.files.map((f) => ({ href: fileUrl(f), title: f.title, meta: "↗", ext: true })))]);
-    const first = w.video ? "rec" : "deck";
+    const first = mediaVideo ? "rec" : "deck";
     return `<section class="tabs" data-tabs>
         <div class="tabs__list" role="tablist">${tabs
           .map(([id, name]) => `<button type="button" role="tab" id="tab-${id}" aria-controls="pane-${id}" aria-selected="${id === first}" data-tab="${id}">${name}</button>`)
           .join("")}</div>
         ${tabs.map(([id, , body]) => `<div class="tabs__pane" role="tabpanel" id="pane-${id}" aria-labelledby="tab-${id}" ${id === first ? "" : "hidden"}>${body}</div>`).join("")}
       </section>
-      ${chaptersBox(w)}`;
+      ${w.primaryVideo ? `<details class="panel"><summary>ההקלטה הקודמת ופרקיה, להעמקה</summary><p>פרקי ההקלטה וחותמות הזמן להלן מתייחסים למקור הישן בלבד.</p>${player(w.video, t().workshop, L(w, "title"))}${chaptersBox(w)}</details>` : chaptersBox(w)}`;
   }
 
   function lessonExtras(w) {
@@ -838,7 +839,7 @@
           <span class="eyebrow">${sec === "bonus" ? esc(t().bonusEyebrow) : `${unit} ${i + 1} ${t().of} ${list.length}`}</span>
           <h1>${esc(L(w, "title"))}</h1>
           <p>${esc(L(w, "summary"))}</p>
-          <div class="lesson__meta">${w.date ? `<span class="meta">${fmtDate(w.date)}</span>` : ""}${dur(w)}${missingChips(w)}${doneButton(w.id)}</div>
+          <div class="lesson__meta">${w.date && !w.primaryVideo ? `<span class="meta">${fmtDate(w.date)}</span>` : ""}${w.primaryVideo ? "" : dur(w)}${missingChips(w)}${doneButton(w.id)}</div>
         </header>
         ${updateNote(w)}
         ${predictBox(w.id)}
@@ -986,7 +987,7 @@
     const o=pilotOutput(p.id,mode),steps=p[mode],last=o.attempts.at(-1);
     const total=Object.values(p.time).reduce((a,b)=>a+b,0);
     const time=mode==='regular'?`חומר ${p.time.material} · עשייה ${p.time.doing} · בדיקה ${p.time.checking} · פתיחת כלי ${p.time.setup}, בסך הכול ${total} דקות`:`כ־${p.advancedMinutes} דקות, ללא צפיית חובה`;
-    return `${head}<p class="pilot-time">אומדן תכנון: ${time}. לא נמדד עדיין עם לומדים. חומר החובה הוא הדוגמה הכתובה; ההקלטה להעמקה.</p><aside class="safety" role="note"><strong>לפני שמתחילים:</strong> השתמשו בחומר ציבורי או בדוי בלבד. אל תעלו מידע מזהה של תלמידים או עמיתים. כלי חיצוני שומר לפי תנאיו; האתר שומר תוצרים רק בדפדפן הזה, בלי סנכרון למכשירים אחרים.</aside><h2>${pilotModes[mode]}</h2><p>${esc(p.preparation)}</p><ol>${steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol><h2>דוגמה לעבודה בלי כלי חיצוני</h2><div class="pilot-example"><p>${esc(p.sourceText)}</p><p><strong>תוצר לדוגמה:</strong> ${esc(p.example)}</p></div><details><summary>דוגמה שדורשת תיקון</summary><p>${esc(p.weak)}</p></details><h2>התוצר שלכם</h2><label for="pilot-note-${p.id}">${esc(p.output)}</label><textarea id="pilot-note-${p.id}" data-pilot-note="${p.id}" data-mode="${mode}" rows="7">${esc(o.note||'')}</textarea><fieldset><legend>בדיקה עצמית של התוצר</legend>${p.criteria.map((c,i)=>`<label class="pilot-check"><input type="checkbox" data-pilot-check="${i}" data-pilot-id="${p.id}" data-mode="${mode}" ${o.checks[i]?'checked':''}><span>${esc(c)}</span></label>`).join('')}</fieldset><p role="status" data-pilot-status>${esc(pilotStatus(p.id,mode))}</p><p class="meta">סימון עצמי אינו ציון אוטומטי או אישור איכות חיצוני.</p><div class="pilot-tools"><button type="button" class="btn" data-pilot-export="copy">העתקת התוצרים</button><button type="button" class="btn btn--ghost" data-pilot-export="download">הורדת התוצרים</button><a href="#portfolio">תיק התוצרים הקיים</a></div><section class="pilot-quiz"><h2>שאלת הבנה</h2><p>${esc(p.quiz.q)}</p><div class="pilot-answers">${p.quiz.options.map((q,i)=>`<button type="button" class="btn btn--ghost" data-pilot-answer="${i}" data-pilot-id="${p.id}" data-mode="${mode}">${esc(q)}</button>`).join('')}</div>${last?`<p role="status">${last.correct?'נכון. הסבירו לעצמכם מדוע.':`כדאי לבדוק שוב. רמז: ${esc(p.quiz.hint)} אפשר לבחור תשובה נוספת.`}</p><p class="meta">נשמרו ${o.attempts.length} ניסיונות. הניסיון הראשון אינו נמחק כשמנסים שוב.</p>`:''}</section></section>`;
+    return `${head}<p class="pilot-time">אומדן תכנון: ${time}. לא נמדד עדיין עם לומדים. חומר החובה הוא הדוגמה הכתובה; ההקלטה להעמקה.</p><aside class="safety" role="note"><strong>לפני שמתחילים:</strong> ${esc(S.privacyNotice)}</aside><h2>${pilotModes[mode]}</h2><p>${esc(p.preparation)}</p><ol>${steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol><h2>דוגמה לעבודה בלי כלי חיצוני</h2><div class="pilot-example"><p>${esc(p.sourceText)}</p><p><strong>תוצר לדוגמה:</strong> ${esc(p.example)}</p></div><details><summary>דוגמה שדורשת תיקון</summary><p>${esc(p.weak)}</p></details><h2>התוצר שלכם</h2><label for="pilot-note-${p.id}">${esc(p.output)}</label><textarea id="pilot-note-${p.id}" data-pilot-note="${p.id}" data-mode="${mode}" rows="7">${esc(o.note||'')}</textarea><fieldset><legend>בדיקה עצמית של התוצר</legend>${p.criteria.map((c,i)=>`<label class="pilot-check"><input type="checkbox" data-pilot-check="${i}" data-pilot-id="${p.id}" data-mode="${mode}" ${o.checks[i]?'checked':''}><span>${esc(c)}</span></label>`).join('')}</fieldset><p role="status" data-pilot-status>${esc(pilotStatus(p.id,mode))}</p><p class="meta">סימון עצמי אינו ציון אוטומטי או אישור איכות חיצוני.</p><div class="pilot-tools"><button type="button" class="btn" data-pilot-export="copy">העתקת התוצרים</button><button type="button" class="btn btn--ghost" data-pilot-export="download">הורדת התוצרים</button><a href="#portfolio">תיק התוצרים הקיים</a></div><section class="pilot-quiz"><h2>שאלת הבנה</h2><p>${esc(p.quiz.q)}</p><div class="pilot-answers">${p.quiz.options.map((q,i)=>`<button type="button" class="btn btn--ghost" data-pilot-answer="${i}" data-pilot-id="${p.id}" data-mode="${mode}">${esc(q)}</button>`).join('')}</div>${last?`<p role="status">${last.correct?'נכון. הסבירו לעצמכם מדוע.':`כדאי לבדוק שוב. רמז: ${esc(p.quiz.hint)} אפשר לבחור תשובה נוספת.`}</p><p class="meta">נשמרו ${o.attempts.length} ניסיונות. הניסיון הראשון אינו נמחק כשמנסים שוב.</p>`:''}</section></section>`;
   }
   app.addEventListener('click',async e=>{
     const mode=e.target.closest('[data-pilot-mode]');
