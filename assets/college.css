@@ -242,3 +242,12 @@ a { color: var(--navy); }
 /* Comfortable navigation targets and legible decorative numerals. */
 .nav a{min-height:44px;display:inline-flex;align-items:center;box-sizing:border-box}
 .how__n{color:var(--navy)}
+
+/* Skill examples separate Hebrew instructions from English identifiers. */
+.skill-example{padding-block:20px;border-bottom:1px solid var(--line)}
+.skill-example h4{font-size:1.25rem;margin-block:0 8px}
+.skill-example h5{font:700 1rem var(--f-body);margin-block:20px 8px}
+.skill-example__name{text-align:start;overflow-wrap:anywhere}
+.skill-example .tpl__text{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7}
+.skill-example .tpl__copy{min-height:44px}
+@media(max-width:600px){.skill-example .tpl{display:flex;flex-direction:column;align-items:stretch}.skill-example .tpl__copy{align-self:flex-start}.skill-example .tpl__text{margin:0}}

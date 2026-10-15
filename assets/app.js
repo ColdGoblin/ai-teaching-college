@@ -432,6 +432,7 @@
       <p class="practice__goal"><strong>${x.goal}:</strong> ${esc(L(p, "goal"))}</p>
       ${p.why ? `<p class="practice__why"><strong>${x.why}:</strong> ${esc(L(p, "why"))}</p>` : ""}
       ${p.explainer ? `<section class="practice__block" dir="rtl" lang="he"><h3>איך בנוי סקיל</h3>${p.explainer.map(([title,text]) => `<h4>${esc(title)}</h4><p>${esc(text)}</p>`).join("")}<p><a href="https://developers.openai.com/plugins/concepts/skills" target="_blank" rel="noopener">מקור: התיעוד הרשמי על סקילים</a></p></section>` : ""}
+      ${p.skillExamples ? `<section class="practice__block skill-examples" dir="rtl" lang="he"><h3>שלוש דוגמאות לסקילים</h3>${p.skillExamples.map(ex => `<section class="skill-example"><h4>${esc(ex.title)}</h4><p class="skill-example__name" dir="ltr" lang="en"><code>${esc(ex.name)}</code></p><h5>תיאור: מה עושה ומתי להפעיל</h5><div class="tpl"><p class="tpl__text" dir="ltr" lang="en">${esc(ex.description)}</p><button type="button" class="tpl__copy" data-copy aria-label="העתקת התיאור: ${esc(ex.title)}">העתקת התיאור</button></div><h5>הוראות העבודה</h5><div class="tpl"><p class="tpl__text">${esc(ex.instructions)}</p><button type="button" class="tpl__copy" data-copy aria-label="העתקת ההוראות: ${esc(ex.title)}">העתקת ההוראות</button></div><p><strong>למה זו דוגמה טובה:</strong> ${esc(ex.why)}</p><h5>בקשות שאמורות להפעיל את הסקיל</h5><ul>${ex.yes.map(text=>`<li>${esc(text)}</li>`).join('')}</ul><h5>בקשות שלא אמורות להפעיל אותו</h5><ul>${ex.no.map(text=>`<li>${esc(text)}</li>`).join('')}</ul></section>`).join('')}<h4>שילוב באותה שיחה</h4><p>${esc(p.skillsFlow)}</p></section>` : ""}
       ${p.predict ? `<p class="practice__predict"><strong>${x.predict}:</strong> ${st.predict?.trim() ? esc(st.predict) : x.predictEmpty}</p>` : ""}
       ${(() => {
         const w = lessons.find((l) => l.id === ref);
@@ -1105,7 +1106,8 @@
     const cp = e.target.closest("[data-copy]");
     if (cp) {
       const text = cp.parentElement.querySelector(".tpl__text").textContent;
-      const done = () => { cp.textContent = t().pr.copied; setTimeout(() => (cp.textContent = t().pr.copy), 1800); };
+      const originalLabel = cp.textContent;
+      const done = () => { cp.textContent = t().pr.copied; setTimeout(() => (cp.textContent = originalLabel), 1800); };
       navigator.clipboard?.writeText(text).then(done, () => {
         const r = document.createRange(); r.selectNodeContents(cp.parentElement.querySelector(".tpl__text"));
         const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
