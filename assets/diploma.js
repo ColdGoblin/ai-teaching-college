@@ -2,9 +2,9 @@
 // Built in the learner's browser only: the name is never stored or sent, no network calls.
 (function () {
   const LEVELS = {
-    beginner: { c: "dp-l1", label: "מתחיל", stars: 1, line: "עמד/ה בהצלחה ב: מסלול ההכרות והיסודות", cheer: "צעד ראשון חשוב, ועשיתם אותו עד הסוף" },
-    intermediate: { c: "dp-l2", label: "בינוני", stars: 2, line: "עמד/ה בהצלחה ב: מסלול היישום בהוראה", cheer: "מהכרות ליישום: הרבה עבודה טובה מאחוריכם" },
-    advanced: { c: "dp-l3", label: "מתקדם", stars: 3, line: "עמד/ה בהצלחה ב: מסלול בניית התהליכים והכלים", cheer: "בניתם, בדקתם ותיקנתם. כל הכבוד" },
+    beginner: { c: "dp-l1", label: "מתחיל", stars: 1, line: "עמד/ה בהצלחה ב: מסלול ההכרות והיסודות", cheer: "ללמוד, להתנסות, ולהרחיב את גבולות האפשר." },
+    intermediate: { c: "dp-l2", label: "בינוני", stars: 2, line: "עמד/ה בהצלחה ב: מסלול היישום בהוראה", cheer: "ללמוד, להתנסות, ולהרחיב את גבולות האפשר." },
+    advanced: { c: "dp-l3", label: "מתקדם", stars: 3, line: "עמד/ה בהצלחה ב: מסלול בניית התהליכים והכלים", cheer: "ללמוד, להתנסות, ולהרחיב את גבולות האפשר." },
   };
   let uid = 0;
   const clean = (v) => String(v || "").trim().replace(/[<>&"]/g, "").slice(0, 40);
