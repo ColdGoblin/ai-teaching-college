@@ -2,9 +2,9 @@
 // Built in the learner's browser only: the name is never stored or sent, no network calls.
 (function () {
   const LEVELS = {
-    beginner: { c: "dp-l1", label: "מתחיל", stars: 1, line: "סיימ/ה את מסלול ההכרות והיסודות", cheer: "צעד ראשון חשוב, ועשיתם אותו עד הסוף" },
-    intermediate: { c: "dp-l2", label: "בינוני", stars: 2, line: "סיימ/ה את מסלול היישום בהוראה", cheer: "מהכרות ליישום: הרבה עבודה טובה מאחוריכם" },
-    advanced: { c: "dp-l3", label: "מתקדם", stars: 3, line: "סיימ/ה את מסלול בניית התהליכים והכלים", cheer: "בניתם, בדקתם ותיקנתם. כל הכבוד" },
+    beginner: { c: "dp-l1", label: "מתחיל", stars: 1, line: "עמד/ה בהצלחה ב: מסלול ההכרות והיסודות", cheer: "צעד ראשון חשוב, ועשיתם אותו עד הסוף" },
+    intermediate: { c: "dp-l2", label: "בינוני", stars: 2, line: "עמד/ה בהצלחה ב: מסלול היישום בהוראה", cheer: "מהכרות ליישום: הרבה עבודה טובה מאחוריכם" },
+    advanced: { c: "dp-l3", label: "מתקדם", stars: 3, line: "עמד/ה בהצלחה ב: מסלול בניית התהליכים והכלים", cheer: "בניתם, בדקתם ותיקנתם. כל הכבוד" },
   };
   let uid = 0;
   const clean = (v) => String(v || "").trim().replace(/[<>&"]/g, "").slice(0, 40);
@@ -65,7 +65,7 @@
   <div class="dp-bottom"><div class="dp-side">${d}</div>
    <div class="dp-sealbox">${wax(L, k)}${STARS(L.stars)}<div class="dp-levelname">רמה: ${L.label}</div></div>
    <div class="dp-side">ללמוד ללמד עם בינה מלאכותית</div></div>
-  <p class="dp-fine">דיפלומה פנימית של המכללה לבינה מלאכותית בהוראה, על השלמת מסלול הלימוד באתר. ההשלמה מדווחת על ידי הלומד/ת. אינה מבחן, תואר או הסמכה אקדמית.</p>
+  <p class="dp-fine">דיפלומה פנימית של האתר. ההשלמה מדווחת על ידי הלומד/ת, ואינה מבחן, תואר או הסמכה אקדמית.</p>
  </div></section>`;
   }
 
@@ -82,6 +82,60 @@
     setTimeout(() => { if (holder.isConnected && !matchMedia("print").matches) done(); }, 1000);
   }
 
+  // Render the existing certificate design locally. Text is painted by the browser,
+  // preserving Hebrew/bidirectional shaping; the PDF embeds the finished page image.
+  async function downloadPDF(levelId, name, topics) {
+    const holder=document.createElement('div');
+    holder.style.cssText='position:fixed;left:-100000px;top:0;width:1122px;pointer-events:none';
+    holder.innerHTML=html(levelId,name,topics);document.body.append(holder);
+    let canvas;
+    try {
+      await document.fonts.ready;
+      const cert=holder.querySelector('.dp-cert');
+      for(const img of cert.querySelectorAll('img'))await img.decode();
+      const box=cert.getBoundingClientRect(),scale=2;
+      canvas=document.createElement('canvas');canvas.width=Math.round(box.width*scale);canvas.height=Math.round(box.height*scale);
+      const ctx=canvas.getContext('2d');ctx.scale(scale,scale);
+      const grad=ctx.createRadialGradient(box.width/2,box.height*.45,0,box.width/2,box.height*.45,box.width*.65);
+      grad.addColorStop(0,'#fffaf0');grad.addColorStop(.55,'#f7efdc');grad.addColorStop(1,'#efe2c4');ctx.fillStyle=grad;ctx.fillRect(0,0,box.width,box.height);
+      // Resolve CSS variables before serializing pure SVG ornaments. No foreignObject.
+      for(const svg of cert.querySelectorAll('svg')){
+        const rect=svg.getBoundingClientRect();if(!rect.width||!rect.height)continue;
+        const clone=svg.cloneNode(true),originals=[svg,...svg.querySelectorAll('*')],copies=[clone,...clone.querySelectorAll('*')];
+        originals.forEach((el,i)=>{const st=getComputedStyle(el);for(const prop of ['color','fill','stroke','stroke-width','stroke-linecap','stroke-linejoin','opacity','stop-color','stop-opacity'])copies[i].style.setProperty(prop,st.getPropertyValue(prop));});
+        clone.setAttribute('xmlns','http://www.w3.org/2000/svg');clone.setAttribute('width',rect.width);clone.setAttribute('height',rect.height);
+        const objectURL=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(clone)],{type:'image/svg+xml'}));
+        try{const image=new Image();image.src=objectURL;await image.decode();ctx.drawImage(image,rect.left-box.left,rect.top-box.top,rect.width,rect.height);}finally{URL.revokeObjectURL(objectURL);}
+      }
+      for(const logo of cert.querySelectorAll('.dp-logo')){
+        const r=logo.getBoundingClientRect(),image=logo.querySelector('img');ctx.save();ctx.beginPath();ctx.arc(r.left-box.left+r.width/2,r.top-box.top+r.height/2,r.width/2,0,Math.PI*2);ctx.clip();ctx.filter='grayscale(1) contrast(1.45)';ctx.drawImage(image,r.left-box.left,r.top-box.top,r.width,r.height);ctx.restore();
+      }
+      const walker=document.createTreeWalker(cert,NodeFilter.SHOW_TEXT);
+      while(walker.nextNode()){
+        const node=walker.currentNode,parent=node.parentElement;if(!node.textContent.trim()||parent.closest('svg'))continue;
+        const style=getComputedStyle(parent),size=parseFloat(style.fontSize),lines=new Map();
+        for(let i=0;i<node.textContent.length;i++){
+          const range=document.createRange();range.setStart(node,i);range.setEnd(node,i+1);const r=range.getBoundingClientRect();if(!r.width||!r.height)continue;
+          const key=Math.round(r.top*2)/2;let line=lines.get(key);if(!line){line={text:'',left:r.left,right:r.right,top:r.top,height:r.height};lines.set(key,line);}line.text+=node.textContent[i];line.left=Math.min(line.left,r.left);line.right=Math.max(line.right,r.right);
+        }
+        ctx.font=`${style.fontStyle} ${style.fontWeight} ${size}px ${style.fontFamily}`;ctx.direction=style.direction;ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillStyle=style.color==='rgba(0, 0, 0, 0)'?getComputedStyle(cert).getPropertyValue('--dp-gold').trim():style.color;
+        for(const line of lines.values())ctx.fillText(line.text,(line.left+line.right)/2-box.left,line.top-box.top+line.height/2+size*.035);
+      }
+      const data=canvas.toDataURL('image/jpeg',.96),jpeg=Uint8Array.from(atob(data.split(',')[1]),c=>c.charCodeAt(0));
+      // Minimal single-page image PDF. No learner name in metadata, URLs or filenames.
+      const enc=new TextEncoder(),chunks=[],offsets=[0];let length=0;
+      const add=b=>{if(typeof b==='string')b=enc.encode(b);chunks.push(b);length+=b.length;};
+      const object=(n,b)=>{offsets[n]=length;add(`${n} 0 obj\n`);add(b);add('\nendobj\n');};
+      add('%PDF-1.4\n');object(1,'<< /Type /Catalog /Pages 2 0 R >>');object(2,'<< /Type /Pages /Kids [3 0 R] /Count 1 >>');object(3,'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 841.89 595.28] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>');
+      offsets[4]=length;add(`4 0 obj\n<< /Type /XObject /Subtype /Image /Width ${canvas.width} /Height ${canvas.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`);add(jpeg);add('\nendstream\nendobj\n');
+      const commands='q 841.89 0 0 595.28 0 0 cm /Im0 Do Q';object(5,`<< /Length ${enc.encode(commands).length} >>\nstream\n${commands}\nendstream`);
+      const xref=length;add('xref\n0 6\n0000000000 65535 f \n');for(let i=1;i<=5;i++)add(String(offsets[i]).padStart(10,'0')+' 00000 n \n');add(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
+      const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(chunks,{type:'application/pdf'}));a.download='diploma.pdf';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    } finally {holder.remove();if(canvas){canvas.width=0;canvas.height=0;}}
+  }
+
+
   // Finish dialog: name field, live preview, print/close. Escape and close return focus to the opener.
   function open(levelId, topics) {
     if (document.querySelector(".dp-dialog[open]")) return;
@@ -94,10 +148,11 @@
       <label for="dp-name">השם שיופיע בדיפלומה<input id="dp-name" maxlength="40" autocomplete="off"></label>
       <p class="dp-meta">השם לא נשמר ולא נשלח. הדיפלומה נוצרת במכשיר שלכם ונעלמת עם סגירת החלון.</p>
       <div data-dp-preview></div>
-      <div class="dp-actions"><button type="button" class="btn" data-dp-print>הדפסה או שמירה כ-PDF</button><button type="button" class="btn btn--ghost" data-dp-close>סגירה</button></div>`;
+      <div class="dp-actions"><button type="button" class="btn" data-dp-download>הורדת PDF</button><button type="button" class="btn btn--ghost" data-dp-print>הדפסה או שמירה כ-PDF</button><button type="button" class="btn btn--ghost" data-dp-close>סגירה</button></div>`;
     const input = dlg.querySelector("#dp-name"), prev = dlg.querySelector("[data-dp-preview]");
     const draw = () => { prev.innerHTML = html(levelId, input.value, topics); };
     input.addEventListener("input", draw);
+    dlg.querySelector('[data-dp-download]').addEventListener('click',async e=>{const button=e.currentTarget;button.disabled=true;button.textContent='מכין את הקובץ…';try{await downloadPDF(levelId,input.value,topics);button.textContent='הורדת PDF';}catch(error){button.textContent='ההורדה נכשלה, אפשר להדפיס ולשמור לקובץ';}finally{button.disabled=false;}});
     dlg.querySelector("[data-dp-print]").addEventListener("click", () => print(html(levelId, input.value, topics)));
     dlg.querySelector("[data-dp-close]").addEventListener("click", () => dlg.close());
     dlg.addEventListener("close", () => { dlg.remove(); if (opener && opener.isConnected) opener.focus({ preventScroll: true }); }, { once: true });
