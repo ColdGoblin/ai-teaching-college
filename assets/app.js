@@ -642,10 +642,10 @@
   function diplomaSample() {
     if (!window.Diploma) return "";
     return `<section class="section diploma-sample" id="diploma-sample">
-      <h2 class="small-h">כך תיראה הדיפלומה שלכם</h2>
+      <h2 class="small-h">למסיימים תוענק דיפלומה חגיגית</h2>
       <div class="dp-picker" role="group" aria-label="רמת הדיפלומה">${J.levels.map((l) => `<button type="button" class="btn btn--ghost" data-dp-level="${l.id}" aria-pressed="${l.id === sampleLevel}">${esc(l.label)}</button>`).join("")}</div>
       <div data-dp-sample>${Diploma.html(sampleLevel, "דנה לוי, דוגמה", [J.goals[0].short])}</div>
-      <p class="dp-note">בסיום המסלול תקבלו דיפלומה עם השם שלכם. היא נוצרת במכשיר שלכם, ללא חשבון וללא שליחת נתונים.</p>
+      <p class="dp-note">דוגמה להמחשה. הדיפלומה האישית נוצרת במכשיר שלכם, ללא חשבון וללא שליחת נתונים.</p>
     </section>`;
   }
   const diplomaTopics = () => myGoals().map((g) => g.short || g.label);

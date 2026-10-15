@@ -24,7 +24,7 @@
 .dp-side:first-child{text-align:start}.dp-side:last-child{text-align:end}
 .dp-sealbox{display:grid;justify-items:center;gap:2px}
 .dp-levelname{font-family:var(--dp-f-display);font-weight:700;color:var(--accent);font-size:1.71cqw}
-.dp-fine{font-size:1.11cqw;color:var(--dp-muted);max-width:92%;margin:0}
+.dp-fine{font-size:1.55cqw;line-height:1.35;color:var(--dp-ink);max-width:100%;margin:0}
 .dp-waxseal{position:relative;width:12.5cqw;aspect-ratio:100/124;filter:drop-shadow(0 4px 5px #0006)}
 .dp-waxseal svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .dp-logo{position:absolute;left:50%;top:41.9%;width:57%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;overflow:hidden;isolation:isolate;background:var(--wax-mid);
@@ -41,10 +41,10 @@
 
 /* home-page sample and the finish dialog */
 .diploma-sample{min-width:0;max-width:100%}
-.diploma-sample [data-dp-sample]{min-width:0}
+.diploma-sample [data-dp-sample]{min-width:0;width:min(480px,100%)}
 .diploma-sample .dp-picker{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 16px}
 .diploma-sample .dp-picker button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
-.diploma-sample .dp-note{color:var(--muted,#6b5f48);font-size:var(--step--1,.95rem);margin-top:12px}
+.diploma-sample .dp-note{color:var(--muted,#6b5f48);font-size:1rem;line-height:1.6;max-width:52ch;margin-top:12px}
 .dp-dialog{width:min(1000px,96vw);max-height:94vh;overflow:auto;border:0;border-radius:12px;padding:16px;background:var(--paper);color:var(--ink)}
 .dp-dialog::backdrop{background:#0008}
 .dp-dialog label{display:grid;gap:4px;font-weight:700;margin-bottom:10px}
