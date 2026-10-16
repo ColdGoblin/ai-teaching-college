@@ -429,6 +429,7 @@
     const st = journey.practice?.[p.id] || { checks: [], note: "", quiz: {} };
     return `<section class="practice" id="practice" data-pid="${p.id}">
       <div class="practice__head"><span class="practice__badge">✎ ${p.kind === "lab" ? x.labBadge : x.badge} · ${esc(L(p, "time"))}</span><h2>${esc(L(p, "title"))}</h2></div>
+      <p class="practice__legend" aria-label="סוגי התרגול">רגיל · מתקדם · העמקה, לא חובה</p>
       <p class="practice__goal"><strong>${x.goal}:</strong> ${esc(L(p, "goal"))}</p>
       ${p.why ? `<p class="practice__why"><strong>${x.why}:</strong> ${esc(L(p, "why"))}</p>` : ""}
       ${p.explainer ? `<section class="practice__block" dir="rtl" lang="he"><h3>איך בנוי סקיל</h3>${p.explainer.map(([title,text]) => `<h4>${esc(title)}</h4><p>${esc(text)}</p>`).join("")}<p><a href="https://developers.openai.com/plugins/concepts/skills" target="_blank" rel="noopener">מקור: התיעוד הרשמי על סקילים</a></p></section>` : ""}
@@ -466,7 +467,7 @@
       <div class="practice__block"><h3>${x.check}</h3><ul class="checks">${L(p, "checks")
         .map((c, ci) => `<li><label><input type="checkbox" data-pcheck="${ci}" ${st.checks?.[ci] ? "checked" : ""}> <span>${esc(c)}</span></label></li>`)
         .join("")}</ul></div>
-      ${p.advanced ? `<details class="practice__adv"${journey.level === "advanced" ? " open" : ""}><summary>${x.advanced}</summary><p>${esc(L(p, "advanced"))}</p>${p.agentic ? `<p class="practice__agentic"><strong>${x.agentic}:</strong> ${esc(L(p, "agentic"))}</p>` : ""}</details>` : ""}
+      ${p.advanced ? `<details class="practice__adv"${journey.level === "advanced" ? " open" : ""}><summary>${x.advanced}</summary><p>${esc(L(p, "advanced"))}</p>${p.agentic ? `<details class="practice__agentic"><summary>${lang === "en" ? "Optional deepening" : "העמקה, לא חובה"}</summary><p><strong>${x.agentic}:</strong> ${esc(L(p, "agentic"))}</p></details>` : ""}</details>` : ""}
       <div class="practice__block"><label class="note-label" for="note-${p.id}">${x.output(esc(L(p, "output")))}</label>
         <textarea id="note-${p.id}" class="note" data-pnote rows="3" placeholder="${x.notePh}">${esc(st.note || "")}</textarea>
         ${(() => { const ps = prStatus(ref); const txt = x.status(ps.done, ps.saved, ps.checked); return `<p class="practice__status"><strong>${txt || x.statusNone}</strong>${ps.checked ? "" : ` <span class="meta">${x.statusHint}</span>`}</p>`; })()}

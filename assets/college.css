@@ -251,3 +251,58 @@ a { color: var(--navy); }
 .skill-example .tpl__text{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7}
 .skill-example .tpl__copy{min-height:44px}
 @media(max-width:600px){.skill-example .tpl{display:flex;flex-direction:column;align-items:stretch}.skill-example .tpl__copy{align-self:flex-start}.skill-example .tpl__text{margin:0}}
+
+/* Owner-approved first visual batch: keep the college identity, reduce chrome. */
+.masthead{padding-top:0;border-bottom:1px solid var(--line)}
+.masthead>.wrap{display:grid;grid-template-columns:minmax(210px,1fr) auto minmax(150px,.7fr) auto;gap:16px;align-items:center;min-height:88px;padding-block:12px}
+.topline{display:contents}
+.founded,.crest__motto{display:none}
+.crest{grid-column:1;grid-row:1;display:flex;gap:12px;align-items:center;padding:0;min-width:0;min-height:44px}
+.crest__seal{width:42px;height:42px;flex:none}
+.crest__seal span{font-size:1.1rem}
+.crest__name{font-size:1.15rem;text-align:start;line-height:1.2;max-width:215px}
+.masthead .search{grid-column:3;grid-row:1;width:100%;min-width:0;order:initial}
+.masthead .search input{min-height:44px;padding:8px 10px;font-size:.95rem}
+.topbar__tools{grid-column:4;grid-row:1;gap:8px}
+.masthead .nav{grid-column:2;grid-row:1;border:0;padding:0;margin:0;gap:0;flex-wrap:nowrap}
+.masthead .nav a{font-size:1rem;padding-inline:7px}
+.masthead .nav a+a::before{display:none}
+.lang,.menu-btn{min-width:44px;min-height:44px;padding:6px 10px}
+.sheet #app{padding-top:22px}
+.hero__text{gap:16px}
+.hero__cta{gap:10px 22px}
+.btn,.linkbtn,.done-btn,.tpl__copy,.tabs__list button,.choice,summary{min-height:44px}
+.linkbtn,.done-btn,summary{display:inline-flex;align-items:center}
+.about a,.footer a,.crumbs a,.practice a,.related a,.panel__head a{min-height:44px;display:inline-flex;align-items:center}
+.practice label{min-height:44px}
+.checks label{display:flex;align-items:center}
+.how__n,.choice__num{color:var(--navy)}
+.lesson .done-btn{background:var(--navy);color:var(--paper);border-color:var(--navy)}
+.lesson .btn--ghost,.hero .linkbtn{background:transparent;color:var(--navy)}
+.practice__legend{font-size:1rem;color:var(--muted-2);margin:0;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.practice__adv{border:1px solid var(--line);border-inline-start:4px solid var(--wine);background:var(--paper);padding:14px 18px}
+.practice__adv>summary{color:var(--wine);font-weight:700}
+.practice__agentic{margin-top:16px;padding:8px 12px;border:1px dashed var(--muted);border-radius:6px;background:var(--card)}
+.practice__agentic>summary{color:var(--muted-2);font-weight:500}
+.practice__agentic p{margin-top:10px}
+@media(max-width:1100px) and (min-width:761px){
+ .masthead>.wrap{grid-template-columns:minmax(190px,1fr) auto auto;gap:12px}
+ .masthead .search{display:block;grid-column:2}.topbar__tools{grid-column:3}
+ .masthead .nav{display:none}.menu-btn{display:inline-block}
+ .masthead .nav.open{display:flex;grid-column:1/-1;grid-row:2;justify-content:center}
+}
+@media(max-width:760px){
+ .masthead>.wrap{grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;min-height:0;padding-block:8px}
+ .crest{grid-column:1;grid-row:1;gap:10px}.crest__name{font-size:1rem;max-width:205px}
+ .crest__seal{width:36px;height:36px}.crest__seal span{font-size:1rem}
+ .topbar__tools{grid-column:2;grid-row:1}
+ .masthead .search{display:block;grid-column:1/-1;grid-row:2}
+ .masthead .nav{display:none;grid-column:1/-1;grid-row:3;flex-direction:column;align-items:stretch}
+ .masthead .nav.open{display:flex}.masthead .nav a{justify-content:center}
+ .sheet #app{padding-top:18px}
+ .hero--college{gap:24px}.hero--college .arch{order:0}
+ .hero--college h1{font-size:clamp(2.4rem,10vw,3.4rem)}
+ .hero--college p{font-size:1.12rem;line-height:1.6}
+ .hero__text{gap:14px}.hero__cta .btn--big{font-size:1.05rem;padding:12px 22px}
+}
+.masthead .search input:focus-visible{outline:3px solid var(--navy);outline-offset:3px}
