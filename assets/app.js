@@ -811,8 +811,9 @@
     return goals?.length ? `<section class="learn" data-lesson-goals dir="rtl" lang="he"><h2>${t().learnTitle}</h2><ul>${goals.map(text => `<li>${esc(text)}</li>`).join("")}</ul></section>` : "";
   }
   function lessonKeyPoints(w) {
-    const points = w && S.lessonSummaries?.[w.id]?.keyPoints;
-    return points?.length ? `<section class="learn lesson-key-points" data-lesson-key-points dir="rtl" lang="he"><h2>עיקרי הדברים</h2><ul>${points.map(text => `<li>${esc(text)}</li>`).join("")}</ul></section>` : "";
+    const summary = w && S.lessonSummaries?.[w.id];
+    const points = summary?.keyPoints;
+    return points?.length ? `<section class="learn lesson-key-points" data-lesson-key-points dir="rtl" lang="he"><h2>עיקרי הדברים</h2>${summary.sourceNote ? `<p class="meta">${esc(summary.sourceNote)}</p>` : ""}<ul>${points.map(text => `<li>${esc(text)}</li>`).join("")}</ul></section>` : "";
   }
 
   function lessonExtras(w) {
