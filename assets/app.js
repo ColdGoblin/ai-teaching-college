@@ -536,6 +536,7 @@
         <header class="lesson__head">
           <span class="eyebrow">${info.step.optional ? `${t().unit(info.unit.n)} · ${t().optional}` : t().stepHead(t().unit(info.unit.n), info.index, info.total, info.step.mins)}</span>
           <h1>${esc(title)}</h1>
+          ${lessonGoals(lessons.find(w => w.id === ref))}
           <p class="why">${esc(whyFor(info.step.stage))}</p>
         </header>
         ${predictBox(ref)}
@@ -800,16 +801,25 @@
           .join("")}</div>
         ${tabs.map(([id, , body]) => `<div class="tabs__pane" role="tabpanel" id="pane-${id}" aria-labelledby="tab-${id}" ${id === first ? "" : "hidden"}>${body}</div>`).join("")}
       </section>
+      ${lessonKeyPoints(w)}
       ${w.primaryVideo ? `<details class="panel"><summary>ההקלטה הקודמת ופרקיה, להעמקה</summary><p>פרקי ההקלטה וחותמות הזמן להלן מתייחסים למקור הישן בלבד.</p>${player(w.video, t().workshop, L(w, "title"))}${chaptersBox(w)}</details>` : chaptersBox(w)}`;
+  }
+
+  function lessonGoals(w) {
+    if (!w) return "";
+    const goals = L(w, "learn") || S.lessonSummaries?.[w.id]?.learn;
+    return goals?.length ? `<section class="learn" data-lesson-goals dir="rtl" lang="he"><h2>${t().learnTitle}</h2><ul>${goals.map(text => `<li>${esc(text)}</li>`).join("")}</ul></section>` : "";
+  }
+  function lessonKeyPoints(w) {
+    const points = w && S.lessonSummaries?.[w.id]?.keyPoints;
+    return points?.length ? `<section class="learn lesson-key-points" data-lesson-key-points dir="rtl" lang="he"><h2>עיקרי הדברים</h2><ul>${points.map(text => `<li>${esc(text)}</li>`).join("")}</ul></section>` : "";
   }
 
   function lessonExtras(w) {
     const list = listOf(w);
     const i = list.indexOf(w);
     const rel = w.related || { videos: [], gammas: [] };
-    const learn = L(w, "learn");
     return `
-      ${learn?.length ? `<section class="learn"><h2>${t().learnTitle}</h2><ul>${learn.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></section>` : ""}
       ${
         rel.videos.length || rel.gammas.length
           ? `<section class="panel"><div class="panel__head"><h2>${t().deeper}</h2></div><div class="related">
@@ -840,6 +850,7 @@
         <header class="lesson__head">
           <span class="eyebrow">${sec === "bonus" ? esc(t().bonusEyebrow) : `${unit} ${i + 1} ${t().of} ${list.length}`}</span>
           <h1>${esc(L(w, "title"))}</h1>
+          ${lessonGoals(w)}
           <p>${esc(L(w, "summary"))}</p>
           <div class="lesson__meta">${w.date && !w.primaryVideo ? `<span class="meta">${fmtDate(w.date)}</span>` : ""}${w.primaryVideo ? "" : dur(w)}${missingChips(w)}${doneButton(w.id)}</div>
         </header>
