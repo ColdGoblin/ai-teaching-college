@@ -417,9 +417,24 @@
   // structured practice where one exists, otherwise the short task
   const PR = { ...(S.practices || {}), ...(S.labs || {}) };
   // Privacy precedes media and practice at every entry point, including direct links.
-  const beforeTools = () => `<aside class="safety" role="note" data-before-tools><strong>${t().pr.earlySafety}:</strong><p>${t().pr.earlySafetyText}</p><details><summary>${t().pr.privacyDetails}</summary><p>${esc(S.privacyNotice || t().pr.safety)}</p><a href="#g-na3diuql2vilgna">${bi("ליחידה על שימוש אחראי, אפשר לפתוח כבר עכשיו", "Open the responsible-use unit now")}</a></details></aside>`;
+  const beforeTools = () => `<aside class="safety" role="note" data-before-tools><strong>${t().pr.earlySafety}:</strong><p>${t().pr.earlySafetyText}</p><details><summary>${t().pr.privacyDetails}</summary><p>${esc(S.privacyNotice || t().pr.safety)}</p></details><p><a href="#g-na3diuql2vilgna">${bi("ליחידה על שימוש אחראי, אפשר לפתוח כבר עכשיו", "Open the responsible-use unit now")}</a></p></aside>`;
 
-  const qualityExample = p => p.qualityExample ? `<details class="practice__block quality-example" data-quality-example><summary>${bi("דוגמה לתוצר טוב (דוגמה מומצאת)", "A strong output example (invented)")}</summary><p class="meta">${bi("כל הדוגמאות והמספרים כאן מומצאים להמחשה. אלה אינם תוצרים או מחקרים אמיתיים.", "All examples and numbers here are invented for illustration. They are not real submissions or research findings.")}</p><h4>${bi("תוצר טוב", "A strong output")}</h4>${p.qualityExample.good.map(text=>`<p>${esc(text)}</p>`).join("")}${p.qualityExample.almost.map((ex,i)=>`<section><h4>${bi("כמעט שם", "Almost there")} ${i+1}</h4><p>${esc(ex.text)}</p><p><strong>${bi("למה לא מספיק:", "Why it is not enough:")}</strong> ${esc(ex.why)}</p><p><strong>${bi("מה לתקן:", "What to change:")}</strong> ${esc(ex.fix)}</p></section>`).join("")}<p><strong>${bi("השוו לתוצר שלכם: מה חסר לכם ממה שבדוגמה? שנו שורה אחת בתוצר שלכם.", "Compare this with your output: what is missing from yours? Change one line in your output.")}</strong></p></details>` : "";
+  const exampleParagraph = text => text.endsWith("give-practicum-feedback")
+    ? `<p>${esc(text.replace("give-practicum-feedback", "").trim())}</p><p dir="ltr" lang="en"><code>give-practicum-feedback</code></p>`
+    : `<p>${esc(text)}</p>`;
+  const qualityExample = p => p.qualityExample ? `<details class="practice__block quality-example" data-quality-example><summary>${bi("דוגמה לתוצר טוב (דוגמה מומצאת)", "A strong output example (invented)")}</summary><p class="meta">${bi("כל הדוגמאות והמספרים כאן מומצאים להמחשה. אלה אינם תוצרים או מחקרים אמיתיים.", "All examples and numbers here are invented for illustration. They are not real submissions or research findings.")}</p><h4>${bi("תוצר טוב", "A strong output")}</h4>${p.qualityExample.good.map(exampleParagraph).join("")}${p.qualityExample.almost.map((ex,i)=>`<section><h4>${bi("כמעט שם", "Almost there")} ${i+1}</h4><p>${esc(ex.text)}</p><p><strong>${bi("למה לא מספיק:", "Why it is not enough:")}</strong> ${esc(ex.why)}</p><p><strong>${bi("מה לתקן:", "What to change:")}</strong> ${esc(ex.fix)}</p></section>`).join("")}<p><strong>${bi("השוו לתוצר שלכם: מה חסר לכם ממה שבדוגמה? שנו שורה אחת בתוצר שלכם.", "Compare this with your output: what is missing from yours? Change one line in your output.")}</strong></p></details>` : "";
+  // Read existing saved notes only; this heuristic is a readiness threshold, not a grade.
+  const isMeaningful = (text, minimum=8) => {
+    const words = String(text || "").toLocaleLowerCase().match(/[\p{L}\p{N}]+(?:['’״׳-][\p{L}\p{N}]+)*/gu) || [];
+    const counts = new Map(); words.forEach(word => counts.set(word,(counts.get(word)||0)+1));
+    return words.length >= minimum && counts.size >= 4 && Math.max(0,...counts.values()) <= words.length/2;
+  };
+  const diplomaReadiness = () => {
+    const units = Object.values(PR).filter(p => isMeaningful(journey.practice?.[p.id]?.note));
+    return {eligible:units.length >= 3,count:units.length,skillCount:new Set(units.map(p=>p.skill || p.id)).size};
+  };
+  window.LearnerEvidence = {readiness:diplomaReadiness,isMeaningful};
+  const diplomaLockedText = count => bi(`הדיפלומה נפתחת אחרי ששמרתם תוצרים בשלוש יחידות לפחות. נשמרו עד עכשיו: ${count}.`, `Your diploma unlocks after you save outputs in at least three units. Saved so far: ${count}.`);
   const transferFor = (ref, p) => p.transfer || ({
     w4: bi("קחו מטלה אחרת שלכם ובדקו אם היא עומדת במבחן העקיפה: מה בדרך שהכלי הציע חשף חולשה? שתי שורות.", "Take another assignment and test whether it withstands a shortcut: what weakness did the tool’s proposed approach expose? Write two lines."),
     w6: bi("בחרו שאלה אמיתית אחרת שעליה אתם צריכים להחליט, הפעילו את בדיקת הציטוטים ושאלה על מה שאין במקורות, וכתבו שתי שורות: מה בדקתם ומה היה שונה הפעם.", "Choose another real question you need to decide on. Check citations and ask about something absent from the sources. Write two lines: what you checked and what differed this time."),
@@ -662,8 +677,9 @@
   }
 
   function finishedBox() {
+    const readiness = diplomaReadiness();
     return `<div class="finished"><h2>${t().allDoneTitle}</h2><p>${t().allDoneText}</p>
-      ${window.Diploma ? `<p><button type="button" class="btn btn--big" data-diploma>${tr("קבלת הדיפלומה")}</button></p>` : ""}
+      ${window.Diploma ? `<p><button type="button" class="btn btn--big" data-diploma ${readiness.eligible ? "" : "disabled"} aria-describedby="diploma-readiness">${tr("קבלת הדיפלומה")}</button></p><p id="diploma-readiness" data-diploma-readiness>${readiness.eligible ? bi("נשמרו תוצרים בשלוש יחידות לפחות. הבסיס הוא דיווח עצמי, ללא בדיקת מרצה.", "Outputs are saved in at least three units. This is self-reported, without lecturer assessment.") : diplomaLockedText(readiness.count)}</p>` : ""}
       <div class="finished__goals"><span>${t().otherGoal}</span>${J.goals
         .filter((g) => !journey.goals.includes(g.id))
         .map((g) => `<button type="button" class="choice choice--small" data-switch-goal="${g.id}">${esc(L(g, "label"))}</button>`)

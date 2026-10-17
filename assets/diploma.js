@@ -96,7 +96,7 @@
   };
 
   // levelId: beginner | intermediate | advanced; topics: short topic names
-  function html(levelId, name, topics, date) {
+  function html(levelId, name, topics, date, evidence) {
     const L = LEVELS[levelId] || LEVELS.beginner, k = "dp" + (++uid), v = clean(name);
     const d = date || new Date().toLocaleDateString(english() ? "en-GB" : "he-IL", { day: "2-digit", month: "2-digit", year: "numeric" });
     return `<section class="dp-cert ${L.c}" dir="${english() ? "ltr" : "rtl"}" lang="${english() ? "en" : "he"}" aria-label="${t("דיפלומה")}, ${t("רמה")} ${t(L.label)}">
@@ -109,7 +109,7 @@
   <div class="dp-bottom"><div class="dp-side">${d}</div>
    <div class="dp-sealbox">${wax(L, k)}${STARS(L.stars)}<div class="dp-levelname">${t("רמה")}: ${t(L.label)}</div></div>
    <div class="dp-side">${t("ללמוד ללמד עם בינה מלאכותית")}</div></div>
-  <p class="dp-fine">${t("דיפלומה פנימית של האתר. ההשלמה מדווחת על ידי הלומד/ת, ואינה מבחן, תואר או הסמכה אקדמית.")}</p>
+  <p class="dp-fine">${evidence ? `${english() ? `Based on ${evidence.skillCount} skills with a saved output; transfer performance is not counted separately.` : `על סמך ${evidence.skillCount} כישורים עם תוצר שמור; ביצוע העברה אינו נספר בנפרד.`}<br>` : ""}${t("דיפלומה פנימית של האתר. ההשלמה מדווחת על ידי הלומד/ת, ואינה מבחן, תואר או הסמכה אקדמית.")}</p>
  </div></section>`;
   }
 
@@ -128,10 +128,10 @@
 
   // Render the existing certificate design locally. Text is painted by the browser,
   // preserving Hebrew/bidirectional shaping; the PDF embeds the finished page image.
-  async function downloadPDF(levelId, name, topics) {
+  async function downloadPDF(levelId, name, topics, evidence) {
     const holder=document.createElement('div');
     holder.style.cssText='position:fixed;left:-100000px;top:0;width:1122px;pointer-events:none';
-    holder.innerHTML=html(levelId,name,topics);document.body.append(holder);
+    holder.innerHTML=html(levelId,name,topics,undefined,evidence);document.body.append(holder);
     let canvas;
     try {
       await document.fonts.ready;
@@ -183,6 +183,17 @@
   // Finish dialog: name field, live preview, print/close. Escape and close return focus to the opener.
   function open(levelId, topics) {
     if (document.querySelector(".dp-dialog[open]")) return;
+    const readiness = window.LearnerEvidence?.readiness?.();
+    const evidence = {
+      count: Math.max(0, Math.floor(Number(readiness?.count) || 0)),
+      skillCount: Math.max(0, Math.floor(Number(readiness?.skillCount) || 0))
+    };
+    if (!readiness?.eligible || evidence.count < 3) {
+      window.alert(english()
+        ? `The diploma opens after you have saved outputs in at least three units. Saved so far: ${evidence.count}.`
+        : `הדיפלומה נפתחת אחרי ששמרתם תוצרים בשלוש יחידות לפחות. נשמרו עד עכשיו: ${evidence.count}.`);
+      return;
+    }
     const opener = document.activeElement;
     const dlg = document.createElement("dialog");
     dlg.className = "dp-dialog";
@@ -222,7 +233,7 @@
         <button type="button" class="btn btn--ghost" data-dp-close>${t("סגירה")}</button>
       </div>`;
     const input = dlg.querySelector("#dp-name"), prev = dlg.querySelector("[data-dp-preview]");
-    const draw = () => { prev.innerHTML = html(levelId, input.value, topics); };
+    const draw = () => { prev.innerHTML = html(levelId, input.value, topics, undefined, evidence); };
     const learned=dlg.querySelector('#dp-learned'), integration=dlg.querySelector('#dp-integration');
     const send=dlg.querySelector('[data-dp-send]'), next=dlg.querySelector('[data-dp-continue]'), consent=dlg.querySelector('[data-dp-consent]'), status=dlg.querySelector('[data-dp-status]');
     let sendFailed=false;
@@ -270,8 +281,8 @@
     });
     validate();
     input.addEventListener("input", draw);
-    dlg.querySelector('[data-dp-download]').addEventListener('click',async e=>{const button=e.currentTarget;button.disabled=true;button.textContent=t("מכין את הקובץ…");try{await downloadPDF(levelId,input.value,topics);button.textContent=t("הורדת PDF");}catch(error){button.textContent=t("ההורדה נכשלה, אפשר להדפיס ולשמור לקובץ");}finally{button.disabled=false;}});
-    dlg.querySelector("[data-dp-print]").addEventListener("click", () => print(html(levelId, input.value, topics)));
+    dlg.querySelector('[data-dp-download]').addEventListener('click',async e=>{const button=e.currentTarget;button.disabled=true;button.textContent=t("מכין את הקובץ…");try{await downloadPDF(levelId,input.value,topics,evidence);button.textContent=t("הורדת PDF");}catch(error){button.textContent=t("ההורדה נכשלה, אפשר להדפיס ולשמור לקובץ");}finally{button.disabled=false;}});
+    dlg.querySelector("[data-dp-print]").addEventListener("click", () => print(html(levelId, input.value, topics, undefined, evidence)));
     dlg.querySelector("[data-dp-close]").addEventListener("click", () => dlg.close());
     dlg.addEventListener("close", () => { dlg.remove(); if (opener && opener.isConnected) opener.focus({ preventScroll: true }); }, { once: true });
     draw();
