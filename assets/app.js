@@ -29,11 +29,14 @@
         notePh: "הדביקו כאן קישור לתוצר, וכתבו תשובות קצרות לשאלות החשיבה", saved: "נשמר בדפדפן שלכם", allMine: "לכל התוצרים שלי",
         nudge: "רגע לפני שממשיכים: יש כאן תרגול קצר. כמה דקות של תרגול שוות יותר משעה של צפייה.", nudgeMins: (m) => `רגע לפני שממשיכים: יש כאן תרגול של כ-${m} דקות. תרגול קצר שווה יותר משעה של צפייה.`, toPractice: "לתרגול", skip: "להמשיך בכל זאת",
         inPath: "✎ תרגול",
-        pfTitle: "התוצרים שלי", pfIntro: "כל מה ששמרתם בתרגולים. הכל שמור רק בדפדפן הזה, אז כדאי להעתיק או להוריד מדי פעם.",
+        pfTitle: "התוצרים שלי", pfIntro: "ההערות, הסימונים והקישורים בתיק נשמרים בדפדפן הזה בלבד, ללא סנכרון בין מכשירים. כדאי להעתיק או להוריד גיבוי. בנפרד, סיכום הסיום נשלח למרצה באמצעות טופס חיצוני רק לאחר הסכמה ושליחה; השם שבדיפלומה אינו נשלח.",
         pfEmpty: "עוד לא שמרתם תוצרים. התרגולים מופיעים בצעדים המרכזיים של המסלול.", pfCopy: "העתקת הכל", pfDownload: "הורדה כקובץ",
         pfChecks: (a, b) => `${a}/${b} בדיקות`, pfOpen: "לתרגול",
         safetyTitle: "לפני שמעלים או מחברים",
-        safety: "השתמשו בחומר ציבורי או בדוי. אל תעלו שמות, ציונים, תמונות או מסמכים של תלמידים או עמיתים. מה נשמר: הכלי שבו אתם משתמשים שומר לפי ההגדרות שלו; באתר הזה נשמר רק במכשיר שלכם. אין לכם חשבון או כפתור מתאים? אפשר להשתמש בתבנית להעתקה ולעבוד בלי לחבר שום דבר.",
+        earlySafety: "לפני עבודה בכלי חיצוני",
+        earlySafetyText: "השתמשו בדוגמה בדויה או בחומר ציבורי ללא מידע אישי. אל תעלו מידע המזהה תלמידים או עמיתים. ספק הכלי עשוי לשמור ולעבד את החומר; בדקו את מדיניותו ואת הנחיות המוסד לפני העלאה או חיבור חשבון.",
+        privacyDetails: "פרטיות ושמירת מידע באתר ובכלים חיצוניים",
+        safety: "השתמשו בחומר ציבורי או בדוי. אל תעלו שמות, ציונים, תמונות או מסמכים של תלמידים או עמיתים. ספק הכלי עשוי לשמור ולעבד מידע לפי תנאיו. ההערות והסימונים באתר נשמרים בדפדפן בלבד; סיכום הסיום נשלח למרצה באמצעות טופס חיצוני רק לאחר הסכמה ושליחה. השם שבדיפלומה אינו נשלח. אין לכם חשבון או כפתור מתאים? אפשר להשתמש בתבנית להעתקה ולעבוד בלי לחבר שום דבר.",
         status: (a, b, c) => [a && "עברתי על החומר", b && "שמרתי תוצר", c && "בדקתי לפי הקריטריונים, בדיווח עצמי"].filter(Boolean).join(" · "),
         statusNone: "עוד לא התחלתם", statusHint: "אפשר להמשיך בלי תוצר. סימון הקריטריונים הוא בדיקה עצמית, ואינו ציון או אישור איכות חיצוני.",
         saveFail: "השמירה בדפדפן נכשלה (אולי גלישה פרטית או שהזיכרון מלא). מה שכתבתם עדיין על המסך: העתיקו או הורידו אותו עכשיו. השמירה באתר היא רק בדפדפן הזה, לא בין מכשירים.",
@@ -105,10 +108,13 @@
         notePh: "Paste a link to your work, and answer the thinking questions briefly", saved: "Saved in your browser", allMine: "All my work",
         nudge: "Before you move on: there is a short practice here. A few minutes of practice is worth more than an hour of watching.", nudgeMins: (m) => `Before you move on: there is a practice of about ${m} minutes here. A short practice is worth more than an hour of watching.`, toPractice: "Go to practice", skip: "Continue anyway",
         inPath: "✎ Practice",
-        pfTitle: "My work", pfIntro: "Everything you saved in the practices. It is stored only in this browser, so copy or download it from time to time.",
+        pfTitle: "My work", pfIntro: "The notes, check marks and links in this portfolio are stored only in this browser, without syncing across devices. Copy or download a backup. Separately, your final reflection is sent to the lecturer through an external form only after consent and submission; the name on your diploma is not sent.",
         pfEmpty: "Nothing saved yet. Practices appear in the main steps of your path.", pfCopy: "Copy all", pfDownload: "Download as file",
         safetyTitle: "Before you upload or connect",
-        safety: "Use public or invented material. Do not upload names, grades, photos or documents of students or colleagues. What is kept: the tool you use keeps data by its own settings; this site keeps things only on your device. No account or matching button? Use the copyable template and work without connecting anything.",
+        earlySafety: "Before working in an external tool",
+        earlySafetyText: "Use an invented example or public material without personal information. Do not upload information that identifies students or colleagues. The tool provider may store and process the material; check its policy and your institution’s guidance before uploading or connecting an account.",
+        privacyDetails: "Privacy and data storage on this site and in external tools",
+        safety: "Use public or invented material. Do not upload names, grades, photos or documents of students or colleagues. External tool providers may store and process information under their terms. Site notes and check marks are stored only in this browser; your final reflection is sent to the lecturer through an external form only after consent and submission. The name on your diploma is not sent. No account or matching button? Use the copyable template and work without connecting anything.",
         status: (a, b, c) => [a && "went through the material", b && "saved an output", c && "self-checked against the criteria"].filter(Boolean).join(" · "),
         statusNone: "not started yet", statusHint: "You may continue without an output. Criteria checks are self-reported, not an external quality assessment.",
         saveFail: "Saving in this browser failed (private browsing or full storage?). Your text is still on screen: copy or download it now. The site saves only in this browser, not across devices.",
@@ -409,10 +415,9 @@
       : "";
   // structured practice where one exists, otherwise the short task
   const PR = { ...(S.practices || {}), ...(S.labs || {}) };
-  // steps that upload material or connect an account get the safety card, at every level
-  const SAFETY_IDS = new Set(["P1", "P5", "P6", "P7", "P8"]);
-  const SAFETY_RE = /העלו|העלאת|חברו|חיבור|דרייב|Drive|Gmail|ג'ימייל|מייל|Calendar|upload|connect/i;
-  const needsSafety = (p) => SAFETY_IDS.has(p.id) || SAFETY_RE.test((L(p, "steps") || []).join(" "));
+  // Privacy precedes media and practice at every entry point, including direct links.
+  const beforeTools = () => `<aside class="safety" role="note" data-before-tools><strong>${t().pr.earlySafety}:</strong><p>${t().pr.earlySafetyText}</p><details><summary>${t().pr.privacyDetails}</summary><p>${esc(S.privacyNotice || t().pr.safety)}</p></details></aside>`;
+
   const prStatus = (ref) => {
     const p = PR[ref], st = journey.practice?.[p.id] || {};
     const checks = L(p, "checks") || [];
@@ -439,7 +444,6 @@
           ? `<p class="practice__watch">${x.watch} <button type="button" class="linkbtn" data-seek="${toSec(p.watch[0])}" data-vid="${esc(w.video.id)}"><span class="time">${esc(p.watch[0])}</span> · ${esc(p.watch[1])}</button></p>`
           : "";
       })()}
-      ${needsSafety(p) ? `<aside class="safety" role="note"><strong>${x.safetyTitle}:</strong> ${esc(S.privacyNotice || x.safety)}</aside>` : ""}
       ${p.briefRecommendation ? `<aside class="notice"><p>${esc(p.briefRecommendation)}</p><a class="linkbtn" href="#b3">${tr("לסדנת האפיון")}</a></aside>` : ""}
       ${p.skillAccess ? `<section class="skill-access" dir="${t().dir}" lang="${lang}"><h3>${tr("סקילים: איפה זה ומה עושים אם אין?")}</h3><p>${tr("אפשר להשלים את התרגול גם בלי תכונת סקילים בחשבון.")}</p><details><summary>${tr("איתור התכונה, זמינות בחשבון וחלופה ידנית")}</summary>${p.skillAccess.map(([title,text])=>`<h4>${esc(title)}</h4><p>${esc(text)}</p>`).join("")}<p><a href="https://support.google.com/gemini/answer/17094296?hl=iw" target="_blank" rel="noopener">${tr("הנחיות Google ליצירת סקילים")}</a></p><p><a href="https://knowledge.workspace.google.com/admin/generative-ai/gemini-app/about-the-transition-to-skills?hl=en" target="_blank" rel="noopener">${tr("לוח המעבר הרשמי לחשבונות חינוך")}</a></p></details></section>` : ""}
       <div class="practice__block" data-practice-steps><h3>${x.steps}</h3><ol>${L(p, "steps").map((s) => `<li>${esc(s)}</li>`).join("")}</ol></div>
@@ -482,9 +486,9 @@
   // the prediction is asked before the media, so learners commit to it before watching
   const predictBox = (ref) => {
     const p = PR[ref];
-    if (!p?.predict) return "";
+    if (!p?.predict) return beforeTools();
     const st = journey.practice?.[p.id] || {};
-    return `<aside class="predict-first" data-pid="${p.id}"><label for="pred-${p.id}"><strong>${t().pr.predictFirst}</strong> ${esc(L(p, "predict"))}</label>
+    return `${beforeTools()}<aside class="predict-first" data-pid="${p.id}"><label for="pred-${p.id}"><strong>${t().pr.predictFirst}</strong> ${esc(L(p, "predict"))}</label>
       <textarea id="pred-${p.id}" class="note" data-ppredict rows="2" placeholder="${t().pr.predictPh}">${esc(st.predict || "")}</textarea></aside>`;
   };
   const taskBox = (ref) =>
@@ -1012,7 +1016,7 @@
     lb.textContent = x.langBtn;
     lb.title = x.langTitle;
     nav.innerHTML = Object.entries(x.nav).map(([k, v]) => `<a href="#${k === "home" ? "" : k}">${v}</a>`).join("");
-    document.getElementById("footer").innerHTML = `<span>© ${esc(S.author)}</span><span class="email">${esc(S.about.email)}</span><a href="https://www.youtube.com/@idanshavit3679" target="_blank" rel="noopener">${x.footerYT}</a>`;
+    document.getElementById("footer").innerHTML = `<details data-storage-notice><summary>${lang === "en" ? "Where your information is stored" : "איפה נשמר המידע שלכם"}</summary><p>${lang === "en" ? "Your learning path, practice notes, checks and quiz answers are stored only in this browser. External tools have their own storage policies. Your final reflection is sent through an external form and stored in a private spreadsheet only after consent and submission. Your diploma name stays on your device." : "המסלול, הערות התרגול, הסימונים ותשובות הבוחן נשמרים בדפדפן הזה בלבד. לכלים חיצוניים מדיניות שמירה משלהם. סיכום הסיום מועבר בטופס חיצוני ונשמר בגיליון פרטי רק לאחר הסכמה ושליחה. השם שבדיפלומה נשאר במכשיר שלכם."}</p></details><span>© ${esc(S.author)}</span><span class="email">${esc(S.about.email)}</span><a href="https://www.youtube.com/@idanshavit3679" target="_blank" rel="noopener">${x.footerYT}</a>`;
   }
   const closeMenu = () => { nav.classList.remove("open"); menuBtn.setAttribute("aria-expanded", "false"); };
   const closeSearch = () => { document.getElementById("q-results").hidden = true; };
@@ -1071,6 +1075,10 @@
       saveJourney(); route(); return;
     }
     if (e.target.closest("[data-reset]")) {
+      const warning = lang === "en"
+        ? "Choose your level, topics and pace again? Your saved work, checks, quiz answers and completion marks will be kept."
+        : "לבחור מחדש רמה, נושאים וקצב? התוצרים, הסימונים, תשובות הבוחן והשיעורים שהשלמתם יישמרו.";
+      if (!window.confirm(warning)) return;
       journey.level = journey.goal = journey.pace = null;
       journey.goals = [];
       goalPick = null;
