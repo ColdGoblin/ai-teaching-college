@@ -109,7 +109,7 @@
   <div class="dp-bottom"><div class="dp-side">${d}</div>
    <div class="dp-sealbox">${wax(L, k)}${STARS(L.stars)}<div class="dp-levelname">${t("רמה")}: ${t(L.label)}</div></div>
    <div class="dp-side">${t("ללמוד ללמד עם בינה מלאכותית")}</div></div>
-  <p class="dp-fine">${evidence ? `${english() ? `Based on ${evidence.skillCount} skills with a saved output; transfer performance is not counted separately.` : `על סמך ${evidence.skillCount} כישורים עם תוצר שמור; ביצוע העברה אינו נספר בנפרד.`}<br>` : ""}${t("דיפלומה פנימית של האתר. ההשלמה מדווחת על ידי הלומד/ת, ואינה מבחן, תואר או הסמכה אקדמית.")}</p>
+  <p class="dp-fine">${evidence ? `${english() ? `Based on ${evidence.skillCount} skills with a saved output.` : `על סמך ${evidence.skillCount} כישורים עם תוצר שמור.`}<br>` : ""}${t("דיפלומה פנימית של האתר. ההשלמה מדווחת על ידי הלומד/ת, ואינה מבחן, תואר או הסמכה אקדמית.")}</p>
  </div></section>`;
   }
 
