@@ -866,7 +866,7 @@
     const list = listOf(w);
     const i = list.indexOf(w);
     const rel = w.related || { videos: [], gammas: [] };
-    return `
+    return `${window.GammaUpdate?.html(w.id) || ""}
       ${
         rel.videos.length || rel.gammas.length
           ? `<section class="panel"><div class="panel__head"><h2>${t().deeper}</h2></div><div class="related">
