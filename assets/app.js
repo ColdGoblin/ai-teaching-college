@@ -181,6 +181,7 @@
   const t = () => T[lang];
   const L = (obj, key) => obj?.[key];
   const tr = (text) => window.SiteI18n.text(text);
+  const bi = (he, en) => lang === "en" ? en : he;
 
   // ---------- helpers ----------
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -405,7 +406,7 @@
   const videoItems = (ids) => ids.map((id) => allVideos.get(id)).filter(Boolean).map((v) => ({ href: `#v-${v.id}`, title: v.title, meta: v.dur }));
   const deckItems = (ids) => ids.map((id) => ({ href: `#g-${id}`, title: gammaTitle(id), meta: t().kind.deck }));
   const doneButton = (ref) =>
-    `<button type="button" class="done-btn" data-toggle-done="${esc(ref)}" aria-pressed="${isDone(ref)}">${isDone(ref) ? t().watched : t().markWatched}</button>`;
+    `<button type="button" class="done-btn" data-toggle-done="${esc(ref)}" aria-pressed="${isDone(ref)}">${isDone(ref) ? t().watched : t().markWatched}</button>${missingOutputNote(ref)}`;
 
   const chaptersBox = (w) =>
     w.chapters?.length && w.video?.id
@@ -416,8 +417,19 @@
   // structured practice where one exists, otherwise the short task
   const PR = { ...(S.practices || {}), ...(S.labs || {}) };
   // Privacy precedes media and practice at every entry point, including direct links.
-  const beforeTools = () => `<aside class="safety" role="note" data-before-tools><strong>${t().pr.earlySafety}:</strong><p>${t().pr.earlySafetyText}</p><details><summary>${t().pr.privacyDetails}</summary><p>${esc(S.privacyNotice || t().pr.safety)}</p></details></aside>`;
+  const beforeTools = () => `<aside class="safety" role="note" data-before-tools><strong>${t().pr.earlySafety}:</strong><p>${t().pr.earlySafetyText}</p><details><summary>${t().pr.privacyDetails}</summary><p>${esc(S.privacyNotice || t().pr.safety)}</p><a href="#g-na3diuql2vilgna">${bi("ליחידה על שימוש אחראי, אפשר לפתוח כבר עכשיו", "Open the responsible-use unit now")}</a></details></aside>`;
 
+  const transferFor = (ref, p) => p.transfer || ({
+    w4: bi("קחו מטלה אחרת שלכם ובדקו אם היא עומדת במבחן העקיפה: מה בדרך שהכלי הציע חשף חולשה? שתי שורות.", "Take another assignment and test whether it withstands a shortcut: what weakness did the tool’s proposed approach expose? Write two lines."),
+    w6: bi("בחרו שאלה אמיתית אחרת שעליה אתם צריכים להחליט, הפעילו את בדיקת הציטוטים ושאלה על מה שאין במקורות, וכתבו שתי שורות: מה בדקתם ומה היה שונה הפעם.", "Choose another real question you need to decide on. Check citations and ask about something absent from the sources. Write two lines: what you checked and what differed this time."),
+    w8: bi("קחו משימה חוזרת אחרת, מדדו בלי הכלי ועם הכלי כולל בדיקה, וכתבו אם החיסכון נשמר.", "Take another recurring task, measure the time without and with the tool including verification, and record whether the time saving holds.")
+  })[ref];
+  const transferBlock = (ref,p) => transferFor(ref,p) ? `<details class="practice__block" data-transfer><summary>${bi("העברה למקרה חדש (לא חובה)", "Transfer to a new case (optional)")}</summary><p>${esc(transferFor(ref,p))}</p><p>${bi("תעדו את הבדיקה והתוצאה בהערת התוצר למטה.", "Record what you checked and the outcome in your output note below.")}</p></details>` : "";
+  const missingOutputNote = (ref) => {
+    const p = PR[ref];
+    return p && !journey.practice?.[p.id]?.note?.trim()
+      ? `<p class="meta" data-missing-output>${bi("לא נשמר תוצר ליחידה הזו. אפשר לסמן סיום, אבל כדאי לשמור לפחות שורה אחת בתיק.", "No output is saved for this unit. You can mark it complete, but consider saving at least one line in your portfolio.")}</p>` : "";
+  };
   const prStatus = (ref) => {
     const p = PR[ref], st = journey.practice?.[p.id] || {};
     const checks = L(p, "checks") || [];
@@ -477,6 +489,8 @@
         .map((c, ci) => `<li><label><input type="checkbox" data-pcheck="${ci}" ${st.checks?.[ci] ? "checked" : ""}> <span>${esc(c)}</span></label></li>`)
         .join("")}</ul></div>
       ${p.advanced ? `<details class="practice__adv"${journey.level === "advanced" ? " open" : ""}><summary>${x.advanced}</summary><p>${esc(L(p, "advanced"))}</p>${p.agentic ? `<details class="practice__agentic"><summary>${lang === "en" ? "Optional deepening" : "העמקה, לא חובה"}</summary><p><strong>${x.agentic}:</strong> ${esc(L(p, "agentic"))}</p></details>` : ""}</details>` : ""}
+      ${transferBlock(ref,p)}
+      ${p.predict ? `<p data-return-prediction>${bi("חזרה לניבוי: מה חשבתם בהתחלה, ומה קרה בפועל? שורה אחת.", "Return to your prediction: what did you expect, and what actually happened? Write one line.")}</p>` : ""}
       <div class="practice__block"><label class="note-label" for="note-${p.id}">${x.output(esc(L(p, "output")))}</label>
         <textarea id="note-${p.id}" class="note" data-pnote rows="3" placeholder="${x.notePh}">${esc(st.note || "")}</textarea>
         ${(() => { const ps = prStatus(ref); const txt = x.status(ps.done, ps.saved, ps.checked); return `<p class="practice__status"><strong>${txt || x.statusNone}</strong>${ps.checked ? "" : ` <span class="meta">${x.statusHint}</span>`}</p>`; })()}
@@ -553,6 +567,7 @@
         ${segBox(info.step)}
         ${media}
         ${taskBox(ref)}
+        ${missingOutputNote(ref)}
         <div class="finish">
           <button type="button" class="btn btn--big" data-complete="${esc(ref)}">${isLast ? t().finishLast : t().finishNext}</button>
           <a href="#start" class="linkbtn">${t().notYet}</a>
@@ -617,6 +632,7 @@
           <h1>${doneN ? t().nav.start : t().ready}</h1>
           <p>${t().pathSummary(units.length, per, weeks)} <span class="meta">(${t().estimate})</span></p>
         </div>
+        ${beforeTools()}
         <div class="bar bar--big" role="progressbar" aria-valuemin="0" aria-valuemax="${req.length}" aria-valuenow="${doneN}"><span style="width:${(doneN / req.length) * 100}%"></span></div>
         ${nxt ? `<a class="btn btn--big" href="${nxt.href}">${doneN ? t().continueBtn : t().start}: ${esc(nxt.title)} ←</a>` : finishedBox()}
         <ol class="units">${units
@@ -1026,6 +1042,19 @@
     nav.classList.toggle("open", open);
     menuBtn.setAttribute("aria-expanded", String(open));
   });
+  function confirmPathReset() {
+    return new Promise(resolve => {
+      const opener = document.activeElement, dlg = document.createElement("dialog");
+      dlg.className = "dp-dialog"; dlg.dir = t().dir; dlg.lang = lang;
+      dlg.setAttribute("aria-labelledby", "reset-title");
+      dlg.innerHTML = `<div class="dp-scroll"><h2 id="reset-title">${bi("לשנות את המסלול?", "Change your path?")}</h2><p>${bi("הבחירות שלכם (רמה, מטרה וקצב) יתאפסו ותבחרו מחדש. ההערות, הסימונים והתוצרים ששמרתם בתרגולים נשארים בדפדפן ולא נמחקים.", "Your level, topics and pace will be reset so you can choose again. Saved practice notes, check marks, quiz answers, outputs and completion marks remain in this browser.")}</p></div><div class="dp-actions"><button type="button" class="btn" data-reset-confirm>${bi("כן, לשנות מסלול", "Yes, change my path")}</button><button type="button" class="btn btn--ghost" data-reset-cancel autofocus>${bi("ביטול", "Cancel")}</button></div>`;
+      let confirmed = false;
+      dlg.querySelector('[data-reset-confirm]').onclick = () => { confirmed = true; dlg.close(); };
+      dlg.querySelector('[data-reset-cancel]').onclick = () => dlg.close();
+      dlg.addEventListener('close', () => { dlg.remove(); opener?.focus(); resolve(confirmed); }, {once:true});
+      document.body.append(dlg); dlg.showModal();
+    });
+  }
   document.getElementById("lang").addEventListener("click", () => {
     lang = lang === "he" ? "en" : "he";
     window.SiteI18n.setLanguage(lang);
@@ -1075,15 +1104,14 @@
       saveJourney(); route(); return;
     }
     if (e.target.closest("[data-reset]")) {
-      const warning = lang === "en"
-        ? "Choose your level, topics and pace again? Your saved work, checks, quiz answers and completion marks will be kept."
-        : "לבחור מחדש רמה, נושאים וקצב? התוצרים, הסימונים, תשובות הבוחן והשיעורים שהשלמתם יישמרו.";
-      if (!window.confirm(warning)) return;
-      journey.level = journey.goal = journey.pace = null;
-      journey.goals = [];
-      goalPick = null;
-      saveJourney();
-      go("#start");
+      confirmPathReset().then(confirmed => {
+        if (!confirmed) return;
+        journey.level = journey.goal = journey.pace = null;
+        journey.goals = [];
+        goalPick = null;
+        saveJourney();
+        go("#start");
+      });
       return;
     }
     const dl = e.target.closest("[data-dp-level]");

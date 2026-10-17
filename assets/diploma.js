@@ -251,6 +251,16 @@
     });
     send.addEventListener('click',async()=>{
       if(send.disabled || !connected) return;
+      const meaningful = value => {
+        const tokens = value.normalize('NFKC').toLocaleLowerCase().match(/[\p{L}\p{N}]+/gu) || [];
+        return tokens.length >= 5 && new Set(tokens).size >= 4;
+      };
+      const invalid = [learned, integration].find(field => !meaningful(field.value));
+      if (invalid) {
+        status.textContent = english() ? 'Write at least one sentence using several different words.' : 'כתבו לפחות משפט אחד עם כמה מילים שונות.';
+        invalid.focus();
+        return;
+      }
       send.disabled=true; sendFailed=false; next.hidden=true;
       const data=new URLSearchParams(), values={learned:learned.value,integration:integration.value,level:levelId,topics:topics.join(', '),version:'reflection-v1'};
       for(const key of keys) data.set(form.fields[key],values[key]);
