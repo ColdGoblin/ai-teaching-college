@@ -314,3 +314,10 @@ a { color: var(--navy); }
 .skill-example>summary{font-weight:700;font-size:1.2rem;cursor:pointer}
 .practice__creative>summary,.skill-access summary{cursor:pointer;min-height:44px}
 .skill-access a{min-height:44px;display:inline-flex;align-items:center}
+
+/* Invented output references and short path-reset confirmation. */
+.quality-example>summary,[data-self-check]>summary,[data-transfer]>summary{cursor:pointer;min-height:44px;font-weight:700}
+.quality-example p,[data-self-check] li,[data-transfer] p{max-width:68ch;line-height:1.7;overflow-wrap:anywhere}
+.quality-example h4{margin-block:24px 8px}
+.quality-example section{margin-block:24px}
+.path-reset-dialog[open]{height:auto;width:min(620px,94vw)}

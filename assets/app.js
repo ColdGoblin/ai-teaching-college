@@ -419,6 +419,7 @@
   // Privacy precedes media and practice at every entry point, including direct links.
   const beforeTools = () => `<aside class="safety" role="note" data-before-tools><strong>${t().pr.earlySafety}:</strong><p>${t().pr.earlySafetyText}</p><details><summary>${t().pr.privacyDetails}</summary><p>${esc(S.privacyNotice || t().pr.safety)}</p><a href="#g-na3diuql2vilgna">${bi("ליחידה על שימוש אחראי, אפשר לפתוח כבר עכשיו", "Open the responsible-use unit now")}</a></details></aside>`;
 
+  const qualityExample = p => p.qualityExample ? `<details class="practice__block quality-example" data-quality-example><summary>${bi("דוגמה לתוצר טוב (דוגמה מומצאת)", "A strong output example (invented)")}</summary><p class="meta">${bi("כל הדוגמאות והמספרים כאן מומצאים להמחשה. אלה אינם תוצרים או מחקרים אמיתיים.", "All examples and numbers here are invented for illustration. They are not real submissions or research findings.")}</p><h4>${bi("תוצר טוב", "A strong output")}</h4>${p.qualityExample.good.map(text=>`<p>${esc(text)}</p>`).join("")}${p.qualityExample.almost.map((ex,i)=>`<section><h4>${bi("כמעט שם", "Almost there")} ${i+1}</h4><p>${esc(ex.text)}</p><p><strong>${bi("למה לא מספיק:", "Why it is not enough:")}</strong> ${esc(ex.why)}</p><p><strong>${bi("מה לתקן:", "What to change:")}</strong> ${esc(ex.fix)}</p></section>`).join("")}<p><strong>${bi("השוו לתוצר שלכם: מה חסר לכם ממה שבדוגמה? שנו שורה אחת בתוצר שלכם.", "Compare this with your output: what is missing from yours? Change one line in your output.")}</strong></p></details>` : "";
   const transferFor = (ref, p) => p.transfer || ({
     w4: bi("קחו מטלה אחרת שלכם ובדקו אם היא עומדת במבחן העקיפה: מה בדרך שהכלי הציע חשף חולשה? שתי שורות.", "Take another assignment and test whether it withstands a shortcut: what weakness did the tool’s proposed approach expose? Write two lines."),
     w6: bi("בחרו שאלה אמיתית אחרת שעליה אתם צריכים להחליט, הפעילו את בדיקת הציטוטים ושאלה על מה שאין במקורות, וכתבו שתי שורות: מה בדקתם ומה היה שונה הפעם.", "Choose another real question you need to decide on. Check citations and ask about something absent from the sources. Write two lines: what you checked and what differed this time."),
@@ -493,6 +494,7 @@
       ${p.predict ? `<p data-return-prediction>${bi("חזרה לניבוי: מה חשבתם בהתחלה, ומה קרה בפועל? שורה אחת.", "Return to your prediction: what did you expect, and what actually happened? Write one line.")}</p>` : ""}
       <div class="practice__block"><label class="note-label" for="note-${p.id}">${x.output(esc(L(p, "output")))}</label>
         <textarea id="note-${p.id}" class="note" data-pnote rows="3" placeholder="${x.notePh}">${esc(st.note || "")}</textarea>
+        ${qualityExample(p)}
         ${(() => { const ps = prStatus(ref); const txt = x.status(ps.done, ps.saved, ps.checked); return `<p class="practice__status"><strong>${txt || x.statusNone}</strong>${ps.checked ? "" : ` <span class="meta">${x.statusHint}</span>`}</p>`; })()}
         <p class="practice__foot"><span class="meta" data-saved hidden>${x.saved}</span><a href="#portfolio">${x.allMine}</a></p></div>
     </section>`;
@@ -1045,7 +1047,7 @@
   function confirmPathReset() {
     return new Promise(resolve => {
       const opener = document.activeElement, dlg = document.createElement("dialog");
-      dlg.className = "dp-dialog"; dlg.dir = t().dir; dlg.lang = lang;
+      dlg.className = "dp-dialog path-reset-dialog"; dlg.dir = t().dir; dlg.lang = lang;
       dlg.setAttribute("aria-labelledby", "reset-title");
       dlg.innerHTML = `<div class="dp-scroll"><h2 id="reset-title">${bi("לשנות את המסלול?", "Change your path?")}</h2><p>${bi("הבחירות שלכם (רמה, מטרה וקצב) יתאפסו ותבחרו מחדש. ההערות, הסימונים והתוצרים ששמרתם בתרגולים נשארים בדפדפן ולא נמחקים.", "Your level, topics and pace will be reset so you can choose again. Saved practice notes, check marks, quiz answers, outputs and completion marks remain in this browser.")}</p></div><div class="dp-actions"><button type="button" class="btn" data-reset-confirm>${bi("כן, לשנות מסלול", "Yes, change my path")}</button><button type="button" class="btn btn--ghost" data-reset-cancel autofocus>${bi("ביטול", "Cancel")}</button></div>`;
       let confirmed = false;
