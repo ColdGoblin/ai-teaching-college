@@ -306,3 +306,11 @@ a { color: var(--navy); }
  .hero__text{gap:14px}.hero__cta .btn--big{font-size:1.05rem;padding:12px 22px}
 }
 .masthead .search input:focus-visible{outline:3px solid var(--navy);outline-offset:3px}
+
+/* Approved learner round: optional examples stay accessible after the actions. */
+.skill-access,.practice__creative{margin-block:16px;padding:14px 16px;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+.skill-access p,.practice__creative p{max-width:68ch;line-height:1.7}
+.skill-access h4{margin-block:18px 6px}
+.skill-example>summary{font-weight:700;font-size:1.2rem;cursor:pointer}
+.practice__creative>summary,.skill-access summary{cursor:pointer;min-height:44px}
+.skill-access a{min-height:44px;display:inline-flex;align-items:center}
