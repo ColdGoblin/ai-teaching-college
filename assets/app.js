@@ -448,6 +448,7 @@
     return `<section class="practice" id="practice" data-pid="${p.id}">
       <div class="practice__head"><span class="practice__badge">✎ ${p.kind === "lab" ? x.labBadge : x.badge} · ${esc(L(p, "time"))}</span><h2>${esc(L(p, "title"))}</h2></div>
       <p class="practice__legend" aria-label="${tr("סוגי התרגול")}">${tr("רגיל · מתקדם · העמקה, לא חובה")}</p>
+      ${p.skill ? `<p class="meta" data-unit-skill><strong>${bi("הכישור שמתרגלים:", "Skill to practise:")}</strong> ${esc(p.skill)}</p>` : ""}
       <p class="practice__goal"><strong>${x.goal}:</strong> ${esc(L(p, "goal"))}</p>
       ${p.why ? `<p class="practice__why"><strong>${x.why}:</strong> ${esc(L(p, "why"))}</p>` : ""}
       ${p.predict ? `<p class="practice__predict"><strong>${x.predict}:</strong> ${st.predict?.trim() ? esc(st.predict) : x.predictEmpty}</p>` : ""}
@@ -484,12 +485,13 @@
             .join("")}</div>${ans != null ? `<p class="quiz__fb ${ans === q.answer ? "ok" : "no"}"><strong>${ans === q.answer ? x.right : x.wrong}</strong> ${esc(q.explain)}</p>` : ""}</div>`;
         })
         .join("")}
-      ${L(p, "reflect")?.length ? `<div class="practice__block"><h3>${x.reflect}</h3><ul class="reflect">${L(p, "reflect").map((r) => `<li>${esc(r)}</li>`).join("")}</ul></div>` : ""}
+      ${!p.selfCheck && L(p, "reflect")?.length ? `<div class="practice__block"><h3>${x.reflect}</h3><ul class="reflect">${L(p, "reflect").map((r) => `<li>${esc(r)}</li>`).join("")}</ul></div>` : ""}
       ${p.pitfall ? `<p class="pitfall"><strong>${x.pitfall}:</strong> ${esc(L(p, "pitfall"))}</p>` : ""}
       <div class="practice__block"><h3>${x.check}</h3><ul class="checks">${L(p, "checks")
         .map((c, ci) => `<li><label><input type="checkbox" data-pcheck="${ci}" ${st.checks?.[ci] ? "checked" : ""}> <span>${esc(c)}</span></label></li>`)
         .join("")}</ul></div>
       ${p.advanced ? `<details class="practice__adv"${journey.level === "advanced" ? " open" : ""}><summary>${x.advanced}</summary><p>${esc(L(p, "advanced"))}</p>${p.agentic ? `<details class="practice__agentic"><summary>${lang === "en" ? "Optional deepening" : "העמקה, לא חובה"}</summary><p><strong>${x.agentic}:</strong> ${esc(L(p, "agentic"))}</p></details>` : ""}</details>` : ""}
+      ${p.selfCheck ? `<details class="practice__block" data-self-check><summary>${bi("בדיקה עצמית (שלוש שאלות)", "Self-check (three questions)")}</summary><ol>${p.selfCheck.map(question=>`<li>${esc(question)}</li>`).join("")}</ol><p>${bi("השיבו בהערת התוצר למטה, לפי מה שעשיתם ובדקתם בפועל.", "Answer in your output note below, using what you actually did and checked.")}</p></details>` : ""}
       ${transferBlock(ref,p)}
       ${p.predict ? `<p data-return-prediction>${bi("חזרה לניבוי: מה חשבתם בהתחלה, ומה קרה בפועל? שורה אחת.", "Return to your prediction: what did you expect, and what actually happened? Write one line.")}</p>` : ""}
       <div class="practice__block"><label class="note-label" for="note-${p.id}">${x.output(esc(L(p, "output")))}</label>
@@ -537,8 +539,8 @@
       .map(([, p]) => {
         const st = journey.practice[p.id];
         const checks = L(p, "checks").map((c, i) => `${st.checks?.[i] ? "[x]" : "[ ]"} ${c}`).join("\n");
-        const qs = (L(p, "reflect") || []).map((r) => `- ${r}`).join("\n");
-        return `## ${p.id} · ${L(p, "title")}\n${st.predict?.trim() ? `${t().pr.predict}:\n${st.predict}\n\n` : ""}${L(p, "output")}:\n${st.note || "—"}\n\n${checks}${qs ? `\n\n${qs}` : ""}`;
+        const qs = (p.selfCheck || L(p, "reflect") || []).map((r) => `- ${r}`).join("\n");
+        return `## ${p.id} · ${L(p, "title")}\n${st.predict?.trim() ? `${t().pr.predict}:\n${st.predict}\n\n` : ""}${L(p, "output")}:\n${st.note || "—"}\n\n${checks}${qs ? `\n\n${qs}` : ""}${p.transfer ? `\n\n${bi("העברה (לא חובה)", "Transfer (optional)")}: ${p.transfer}` : ""}`;
       })
       .join("\n\n---\n\n");
   }
