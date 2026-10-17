@@ -16,8 +16,7 @@
   const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
 
   // ---------- language ----------
-  // Content is Hebrew today. Any item may get *_en fields (title_en, summary_en, task_en…)
-  // and the English interface will use them; until then it falls back to Hebrew.
+  // Complete source translations are applied to content in memory; learner data stays untouched.
   const T = {
     he: {
       dir: "rtl", skip: "דילוג לתוכן", search: "חיפוש סדנה, סרטון או מצגת", searchLabel: "חיפוש באתר", noResults: "לא נמצאו תוצאות",
@@ -97,7 +96,7 @@
     },
     en: {
       dir: "ltr", skip: "Skip to content", search: "Search workshops, videos, slides", searchLabel: "Search the site", noResults: "No results",
-      menu: "Menu", langBtn: "עב", langTitle: "לעברית",
+      menu: "Menu", langBtn: "HE", langTitle: "Switch to Hebrew",
       nav: { home: "Home", start: "My path", portfolio: "My work", all: "All materials", about: "About" },
       pr: {
         badge: "Practice", labBadge: "Hands-on", agentic: "Going further: agentic tools", predict: "What I wrote first", predictFirst: "Before you start:", predictPh: "Write here before watching or reading. We will come back to it.", predictEmpty: "Nothing yet. You can write it in the box at the top of the page.", advanced: "Advanced challenge", goal: "Goal", steps: "What to do", template: "Template to copy", copy: "Copy", copied: "Copied ✓",
@@ -116,7 +115,7 @@
         pfChecks: (a, b) => `${a}/${b} checks`, pfOpen: "Open practice",
       },
       heroEyebrow: "Faculty of Curious Teachers", heroH1a: "Learning to teach with", heroH1b: "artificial intelligence",
-      heroLead: "A tradition of teaching, with a machine that never tires. Three short questions and you are on your way to an honorary degree – at your pace, on your own course.",
+      heroLead: "A tradition of teaching, with a machine that never tires. Three short questions start your personal learning path, at your pace, using your own course.",
       heroCta: "Enrol for the semester · 2 min", heroBrowse: "or browse the full catalogue",
       portraitCaption: "Prof. (almost) Idan Shavit, Head of Chair",
       heroNote: "\"Enrol\" is tongue-in-cheek: no account, no password, no payment. Answer three short questions and get a personal learning path, saved only in your browser.",
@@ -169,12 +168,13 @@
       moreFrom: (t) => `More from ${t}`, partOf: "Part of", moreInTopic: "More on this topic",
       kind: { rec: "Workshop recording", recSession: "Session recording", materials: "Slides and materials", video: "Short video", deck: "Slides" },
       mins: (m) => `${m} min`,
-      enNotice: "English version in preparation: some content still appears in Hebrew.", footerYT: "YouTube channel",
+      enNotice: "Site text is available in English. Original recordings and slides retain their source language.", footerYT: "YouTube channel",
     },
   };
   let lang = store.get("lang", "he") === "en" ? "en" : "he";
   const t = () => T[lang];
-  const L = (obj, key) => (lang === "en" && obj?.[key + "_en"]) || obj?.[key];
+  const L = (obj, key) => obj?.[key];
+  const tr = (text) => window.SiteI18n.text(text);
 
   // ---------- helpers ----------
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -429,7 +429,7 @@
     const st = journey.practice?.[p.id] || { checks: [], note: "", quiz: {} };
     return `<section class="practice" id="practice" data-pid="${p.id}">
       <div class="practice__head"><span class="practice__badge">✎ ${p.kind === "lab" ? x.labBadge : x.badge} · ${esc(L(p, "time"))}</span><h2>${esc(L(p, "title"))}</h2></div>
-      <p class="practice__legend" aria-label="סוגי התרגול">רגיל · מתקדם · העמקה, לא חובה</p>
+      <p class="practice__legend" aria-label="${tr("סוגי התרגול")}">${tr("רגיל · מתקדם · העמקה, לא חובה")}</p>
       <p class="practice__goal"><strong>${x.goal}:</strong> ${esc(L(p, "goal"))}</p>
       ${p.why ? `<p class="practice__why"><strong>${x.why}:</strong> ${esc(L(p, "why"))}</p>` : ""}
       ${p.predict ? `<p class="practice__predict"><strong>${x.predict}:</strong> ${st.predict?.trim() ? esc(st.predict) : x.predictEmpty}</p>` : ""}
@@ -440,12 +440,12 @@
           : "";
       })()}
       ${needsSafety(p) ? `<aside class="safety" role="note"><strong>${x.safetyTitle}:</strong> ${esc(S.privacyNotice || x.safety)}</aside>` : ""}
-      ${p.briefRecommendation ? `<aside class="notice"><p>${esc(p.briefRecommendation)}</p><a class="linkbtn" href="#b3">לסדנת האפיון</a></aside>` : ""}
-      ${p.skillAccess ? `<section class="skill-access" dir="rtl" lang="he"><h3>סקילים: איפה זה ומה עושים אם אין?</h3><p>אפשר להשלים את התרגול גם בלי תכונת סקילים בחשבון.</p><details><summary>איתור התכונה, זמינות בחשבון וחלופה ידנית</summary>${p.skillAccess.map(([title,text])=>`<h4>${esc(title)}</h4><p>${esc(text)}</p>`).join("")}<p><a href="https://support.google.com/gemini/answer/17094296?hl=iw" target="_blank" rel="noopener">הנחיות Google ליצירת סקילים</a></p><p><a href="https://knowledge.workspace.google.com/admin/generative-ai/gemini-app/about-the-transition-to-skills?hl=en" target="_blank" rel="noopener">לוח המעבר הרשמי לחשבונות חינוך</a></p></details></section>` : ""}
+      ${p.briefRecommendation ? `<aside class="notice"><p>${esc(p.briefRecommendation)}</p><a class="linkbtn" href="#b3">${tr("לסדנת האפיון")}</a></aside>` : ""}
+      ${p.skillAccess ? `<section class="skill-access" dir="${t().dir}" lang="${lang}"><h3>${tr("סקילים: איפה זה ומה עושים אם אין?")}</h3><p>${tr("אפשר להשלים את התרגול גם בלי תכונת סקילים בחשבון.")}</p><details><summary>${tr("איתור התכונה, זמינות בחשבון וחלופה ידנית")}</summary>${p.skillAccess.map(([title,text])=>`<h4>${esc(title)}</h4><p>${esc(text)}</p>`).join("")}<p><a href="https://support.google.com/gemini/answer/17094296?hl=iw" target="_blank" rel="noopener">${tr("הנחיות Google ליצירת סקילים")}</a></p><p><a href="https://knowledge.workspace.google.com/admin/generative-ai/gemini-app/about-the-transition-to-skills?hl=en" target="_blank" rel="noopener">${tr("לוח המעבר הרשמי לחשבונות חינוך")}</a></p></details></section>` : ""}
       <div class="practice__block" data-practice-steps><h3>${x.steps}</h3><ol>${L(p, "steps").map((s) => `<li>${esc(s)}</li>`).join("")}</ol></div>
-      ${p.creative ? `<details class="practice__creative"><summary>העמקה יצירתית, לא חובה: ${esc(p.creative.title)}</summary><p>${esc(p.creative.task)}</p><p><strong>מה לשמור:</strong> ${esc(p.creative.output)}</p></details>` : ""}
-      ${p.explainer ? `<section class="practice__block" dir="rtl" lang="he"><h3>איך בנוי סקיל</h3>${p.explainer.map(([title,text]) => `<h4>${esc(title)}</h4><p>${esc(text)}</p>`).join("")}<p><a href="https://developers.openai.com/plugins/concepts/skills" target="_blank" rel="noopener">מקור: התיעוד הרשמי על סקילים</a></p></section>` : ""}
-      ${p.skillExamples ? `<section class="practice__block skill-examples" dir="rtl" lang="he"><h3>שלוש דוגמאות לסקילים</h3>${p.skillExamples.map((ex,exampleIndex) => `<details class="skill-example"${exampleIndex === 0 ? " open" : ""}><summary>${esc(ex.title)}</summary><p class="skill-example__name" dir="ltr" lang="en"><code>${esc(ex.name)}</code></p><h5>תיאור: מה עושה ומתי להפעיל</h5><div class="tpl"><p class="tpl__text" dir="ltr" lang="en">${esc(ex.description)}</p><button type="button" class="tpl__copy" data-copy aria-label="העתקת התיאור: ${esc(ex.title)}">העתקת התיאור</button></div><h5>הוראות העבודה</h5><div class="tpl"><p class="tpl__text">${esc(ex.instructions)}</p><button type="button" class="tpl__copy" data-copy aria-label="העתקת ההוראות: ${esc(ex.title)}">העתקת ההוראות</button></div><p><strong>למה זו דוגמה טובה:</strong> ${esc(ex.why)}</p><h5>בקשות שאמורות להפעיל את הסקיל</h5><ul>${ex.yes.map(text=>`<li>${esc(text)}</li>`).join('')}</ul><h5>בקשות שלא אמורות להפעיל אותו</h5><ul>${ex.no.map(text=>`<li>${esc(text)}</li>`).join('')}</ul></details>`).join('')}<h4>שילוב באותה שיחה</h4><p>${esc(p.skillsFlow)}</p></section>` : ""}
+      ${p.creative ? `<details class="practice__creative"><summary>${tr("העמקה יצירתית, לא חובה: ")}${esc(p.creative.title)}</summary><p>${esc(p.creative.task)}</p><p><strong>${tr("מה לשמור:")}</strong> ${esc(p.creative.output)}</p></details>` : ""}
+      ${p.explainer ? `<section class="practice__block" dir="${t().dir}" lang="${lang}"><h3>${tr("איך בנוי סקיל")}</h3>${p.explainer.map(([title,text]) => `<h4>${esc(title)}</h4><p>${esc(text)}</p>`).join("")}<p><a href="https://developers.openai.com/plugins/concepts/skills" target="_blank" rel="noopener">${tr("מקור: התיעוד הרשמי על סקילים")}</a></p></section>` : ""}
+      ${p.skillExamples ? `<section class="practice__block skill-examples" dir="${t().dir}" lang="${lang}"><h3>${tr("שלוש דוגמאות לסקילים")}</h3>${p.skillExamples.map((ex,exampleIndex) => `<details class="skill-example"${exampleIndex === 0 ? " open" : ""}><summary>${esc(ex.title)}</summary><p class="skill-example__name" dir="ltr" lang="en"><code>${esc(ex.name)}</code></p><h5>${tr("תיאור: מה עושה ומתי להפעיל")}</h5><div class="tpl"><p class="tpl__text" dir="ltr" lang="en">${esc(ex.description)}</p><button type="button" class="tpl__copy" data-copy aria-label="${tr("העתקת התיאור: ")}${esc(ex.title)}">${tr("העתקת התיאור")}</button></div><h5>${tr("הוראות העבודה")}</h5><div class="tpl"><p class="tpl__text">${esc(ex.instructions)}</p><button type="button" class="tpl__copy" data-copy aria-label="${tr("העתקת ההוראות: ")}${esc(ex.title)}">${tr("העתקת ההוראות")}</button></div><p><strong>${tr("למה זו דוגמה טובה:")}</strong> ${esc(ex.why)}</p><h5>${tr("בקשות שאמורות להפעיל את הסקיל")}</h5><ul>${ex.yes.map(text=>`<li>${esc(text)}</li>`).join('')}</ul><h5>${tr("בקשות שלא אמורות להפעיל אותו")}</h5><ul>${ex.no.map(text=>`<li>${esc(text)}</li>`).join('')}</ul></details>`).join('')}<h4>${tr("שילוב באותה שיחה")}</h4><p>${esc(p.skillsFlow)}</p></section>` : ""}
       ${p.manualCheckNote ? `<p class="notice">${esc(p.manualCheckNote)}</p>` : ""}
 
       ${(() => {
@@ -561,7 +561,7 @@
   function onboarding() {
     const steps = [
       ["level", J.levels.map((o) => ({ id: o.id, label: L(o, "label"), hint: L(o, "hint") }))],
-      ["goal", J.goals.map((o) => ({ id: o.id, label: L(o, "label"), hint: lang === "en" ? o.hint_en : o.hint }))],
+      ["goal", J.goals.map((o) => ({ id: o.id, label: L(o, "label"), hint: L(o, "hint") }))],
       ["pace", J.paces.map((o) => ({ id: o.id, label: L(o, "label"), hint: L(o, "hint") }))],
     ];
     const i = !journey.level ? 0 : !journey.goals.length ? 1 : 2;
@@ -639,7 +639,7 @@
 
   function finishedBox() {
     return `<div class="finished"><h2>${t().allDoneTitle}</h2><p>${t().allDoneText}</p>
-      ${window.Diploma ? `<p><button type="button" class="btn btn--big" data-diploma>קבלת הדיפלומה</button></p>` : ""}
+      ${window.Diploma ? `<p><button type="button" class="btn btn--big" data-diploma>${tr("קבלת הדיפלומה")}</button></p>` : ""}
       <div class="finished__goals"><span>${t().otherGoal}</span>${J.goals
         .filter((g) => !journey.goals.includes(g.id))
         .map((g) => `<button type="button" class="choice choice--small" data-switch-goal="${g.id}">${esc(L(g, "label"))}</button>`)
@@ -651,10 +651,10 @@
   function diplomaSample() {
     if (!window.Diploma) return "";
     return `<section class="section diploma-sample" id="diploma-sample">
-      <h2 class="small-h">למסיימים תוענק דיפלומה חגיגית</h2>
-      <div class="dp-picker" role="group" aria-label="רמת הדיפלומה">${J.levels.map((l) => `<button type="button" class="btn btn--ghost" data-dp-level="${l.id}" aria-pressed="${l.id === sampleLevel}">${esc(l.label)}</button>`).join("")}</div>
-      <div data-dp-sample>${Diploma.html(sampleLevel, "דנה לוי, דוגמה", [J.goals[0].short])}</div>
-      <p class="dp-note">דוגמה להמחשה. הדיפלומה האישית נוצרת במכשיר שלכם, ללא חשבון וללא שליחת נתונים.</p>
+      <h2 class="small-h">${tr("למסיימים תוענק דיפלומה חגיגית")}</h2>
+      <div class="dp-picker" role="group" aria-label="${tr("רמת הדיפלומה")}">${J.levels.map((l) => `<button type="button" class="btn btn--ghost" data-dp-level="${l.id}" aria-pressed="${l.id === sampleLevel}">${esc(l.label)}</button>`).join("")}</div>
+      <div data-dp-sample>${Diploma.html(sampleLevel, tr("דנה לוי, דוגמה"), [J.goals[0].short])}</div>
+      <p class="dp-note">${tr("דוגמה להמחשה. הדיפלומה האישית נוצרת במכשיר שלכם, ללא חשבון וללא שליחת נתונים.")}</p>
     </section>`;
   }
   const diplomaTopics = () => myGoals().map((g) => g.short || g.label);
@@ -808,18 +808,18 @@
         ${tabs.map(([id, , body]) => `<div class="tabs__pane" role="tabpanel" id="pane-${id}" aria-labelledby="tab-${id}" ${id === first ? "" : "hidden"}>${body}</div>`).join("")}
       </section>
       ${lessonKeyPoints(w)}
-      ${w.primaryVideo ? `<details class="panel"><summary>ההקלטה הקודמת ופרקיה, להעמקה</summary><p>פרקי ההקלטה וחותמות הזמן להלן מתייחסים למקור הישן בלבד.</p>${player(w.video, t().workshop, L(w, "title"))}${chaptersBox(w)}</details>` : chaptersBox(w)}`;
+      ${w.primaryVideo ? `<details class="panel"><summary>${tr("ההקלטה הקודמת ופרקיה, להעמקה")}</summary><p>${tr("פרקי ההקלטה וחותמות הזמן להלן מתייחסים למקור הישן בלבד.")}</p>${player(w.video, t().workshop, L(w, "title"))}${chaptersBox(w)}</details>` : chaptersBox(w)}`;
   }
 
   function lessonGoals(w) {
     if (!w) return "";
     const goals = L(w, "learn") || S.lessonSummaries?.[w.id]?.learn;
-    return goals?.length ? `<section class="learn" data-lesson-goals dir="rtl" lang="he"><h2>${t().learnTitle}</h2><ul>${goals.map(text => `<li>${esc(text)}</li>`).join("")}</ul></section>` : "";
+    return goals?.length ? `<section class="learn" data-lesson-goals dir="${t().dir}" lang="${lang}"><h2>${t().learnTitle}</h2><ul>${goals.map(text => `<li>${esc(text)}</li>`).join("")}</ul></section>` : "";
   }
   function lessonKeyPoints(w) {
     const summary = w && S.lessonSummaries?.[w.id];
     const points = summary?.keyPoints;
-    return points?.length ? `<section class="learn lesson-key-points" data-lesson-key-points dir="rtl" lang="he"><h2>עיקרי הדברים</h2>${summary.sourceNote ? `<p class="meta">${esc(summary.sourceNote)}</p>` : ""}<ul>${points.map(text => `<li>${esc(text)}</li>`).join("")}</ul></section>` : "";
+    return points?.length ? `<section class="learn lesson-key-points" data-lesson-key-points dir="${t().dir}" lang="${lang}"><h2>${tr("עיקרי הדברים")}</h2>${summary.sourceNote ? `<p class="meta">${esc(summary.sourceNote)}</p>` : ""}<ul>${points.map(text => `<li>${esc(text)}</li>`).join("")}</ul></section>` : "";
   }
 
   function lessonExtras(w) {
@@ -1001,7 +1001,9 @@
     const x = t();
     document.documentElement.lang = lang;
     document.documentElement.dir = x.dir;
+    document.querySelector('meta[name="description"]').content = lang === "en" ? "A guided path for learning to teach with AI: faculty workshops at Kaye Academic College of Education, professional development and practice using your own course." : "מסלול מלווה ללמידת בינה מלאכותית בהוראה: סדנאות הכשרת הסגל במכללת קיי, השתלמויות למורים ותרגול על הקורס שלכם.";
     document.getElementById("brand-name").textContent = L(S, "name");
+    document.querySelector(".founded").textContent = lang === "en" ? "Founded MMXXIII · the year of chat" : "נוסד ב־MMXXIII · שנת הצ׳אט";
     document.querySelector(".skip").textContent = x.skip;
     document.getElementById("q-label").textContent = x.searchLabel;
     q.placeholder = x.search;
@@ -1022,6 +1024,7 @@
   });
   document.getElementById("lang").addEventListener("click", () => {
     lang = lang === "he" ? "en" : "he";
+    window.SiteI18n.setLanguage(lang);
     store.set("lang", lang);
     chrome();
     route();
@@ -1079,7 +1082,7 @@
     if (dl) {
       sampleLevel = dl.dataset.dpLevel;
       const box = app.querySelector("[data-dp-sample]");
-      if (box) box.innerHTML = Diploma.html(sampleLevel, "דנה לוי, דוגמה", [J.goals[0].short]);
+      if (box) box.innerHTML = Diploma.html(sampleLevel, tr("דנה לוי, דוגמה"), [J.goals[0].short]);
       app.querySelectorAll("[data-dp-level]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.dpLevel === sampleLevel)));
       return;
     }
@@ -1235,6 +1238,10 @@
     document.getElementById("lib-none").hidden = any;
   });
 
+  // Register derived resource indexes before translating, so switching back is exact.
+  window.SiteI18n.register(S);
+  window.SiteI18n.register([...allVideos.values(), ...allGammas.values()]);
+  window.SiteI18n.setLanguage(lang);
   chrome();
   window.addEventListener("hashchange", route);
   route();

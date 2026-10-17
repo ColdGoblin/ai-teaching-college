@@ -1,6 +1,50 @@
 // Diploma (Hexweaver's design, certificates-mockup.html, 15 Oct).
 // Built in the learner's browser only: the name is never stored or sent, no network calls.
 (function () {
+  const english = () => window.SiteI18n?.language() === "en";
+  const DIPLOMA_EN = {
+  "מתחיל": "Beginner",
+  "בינוני": "Intermediate",
+  "מתקדם": "Advanced",
+  "עמד/ה בהצלחה ב: מסלול ההכרות והיסודות": "Successfully completed: Introduction and Foundations",
+  "עמד/ה בהצלחה ב: מסלול היישום בהוראה": "Successfully completed: Applying AI in Teaching",
+  "עמד/ה בהצלחה ב: מסלול בניית התהליכים והכלים": "Successfully completed: Building Workflows and Tools",
+  "ללמוד, להתנסות, ולהרחיב את גבולות האפשר.": "Learn, experiment, and expand the boundaries of possibility.",
+  "המכללה לבינה מלאכותית בהוראה": "The College of AI in Teaching",
+  "דיפלומה": "Diploma",
+  "מוענקת בזאת ל": "This diploma is awarded to",
+  "שם הלומד/ת": "Learner's name",
+  "ללמוד ללמד עם בינה מלאכותית": "Learning to teach with AI",
+  "דיפלומה פנימית של האתר. ההשלמה מדווחת על ידי הלומד/ת, ואינה מבחן, תואר או הסמכה אקדמית.": "An internal diploma issued by this site. Completion is self-reported by the learner; this is not an examination, degree or academic qualification.",
+  "סיכום הלמידה והדיפלומה שלכם": "Your learning reflection and diploma",
+  "השם שיופיע בדיפלומה": "Name to appear on the diploma",
+  "הדיפלומה עצמה נוצרת במכשיר שלכם. השם מיועד לדיפלומה בלבד ואינו נשלח. הטקסט אינו נשמר בדפדפן, ויישלח רק לאחר הסכמתכם. סגירת החלון מוחקת את הטקסט, לכן כדאי להעתיק אותו קודם.": "The diploma is created on your device. Your name is used only on the diploma and is not sent. Your reflection is not saved in the browser and is sent only with your consent. Closing this window deletes the text, so copy it first.",
+  "אל תכתבו מידע מזהה על תלמידים או עמיתים.": "Do not include information that identifies students or colleagues.",
+  "עידן הדיקן קורא את התשובות לצורך למידה ושיפור. לאחר אישור ושליחה, הטקסט יועבר באמצעות טופס חיצוני ויישמר בגיליון פרטי. לפניות השתמשו בפרטי הקשר באתר.": "Idan the Dean reads the responses to learn and improve. After you consent and submit, your text is sent through an external form and stored in a private spreadsheet. For enquiries, use the contact details on this site.",
+  "שמירת הסיכומים אצל המרצה עדיין אינה מחוברת. כרגע שום טקסט לא נשלח. אפשר לכתוב, להעתיק ולהמשיך לדיפלומה.": "Saving reflections with the lecturer is not connected yet. No text is currently sent. You can write, copy your text and continue to the diploma.",
+  "מה למדתי": "What I learned",
+  "כתבו פסקה או שתיים: מה למדתם במסלול, ומה אתם לוקחים ממנו.": "Write one or two paragraphs: what you learned on this path and what you will take away from it.",
+  "בינה מלאכותית בלמידה ובהוראה שלי": "AI in my learning and teaching",
+  "איך אתם רואים את השילוב של הבינה המלאכותית בלמידה שלכם ובהוראה שלכם?": "How do you see AI fitting into your own learning and teaching?",
+  "קראתי ואני מסכים/ה שהטקסט שכתבתי יישלח ויישמר אצל המרצה.": "I have read this notice and consent to my text being sent to and stored by the lecturer.",
+  "שליחה וקבלת הדיפלומה": "Submit and get diploma",
+  "המשך לדיפלומה ללא שליחה": "Continue to diploma without submitting",
+  "העתקת הטקסט שלי": "Copy my text",
+  "הורדת PDF": "Download PDF",
+  "הדפסה או שמירה לקובץ": "Print or save to file",
+  "חזרה לטקסט שלי": "Back to my text",
+  "סגירה": "Close",
+  "הטקסט הועתק.": "Text copied.",
+  "ההעתקה האוטומטית לא הצליחה. אפשר לסמן את הטקסט ולהעתיק ידנית.": "Automatic copying failed. You can select the text and copy it manually.",
+  "בקשת השליחה הסתיימה. אין אפשרות לאמת מכאן שהטופס קלט אותה. מומלץ לשמור עותק של הטקסט.": "The submission request has finished. This site cannot verify whether the form received it. We recommend keeping a copy of your text.",
+  "השליחה לא הצליחה. הטקסט נשאר כאן. אפשר לנסות שוב, להעתיק אותו או להמשיך לדיפלומה ללא שליחה.": "Submission failed. Your text is still here. Try again, copy it, or continue to the diploma without submitting.",
+  "מכין את הקובץ…": "Preparing your file…",
+  "ההורדה נכשלה, אפשר להדפיס ולשמור לקובץ": "Download failed; you can print and save to a file",
+  "נושאים": "Topics",
+  "נושא": "Topic",
+  "רמה": "Level"
+};
+  const t = source => english() ? (DIPLOMA_EN[source] || window.SiteI18n?.text(source) || source) : source;
   const LEVELS = {
     beginner: { c: "dp-l1", label: "מתחיל", stars: 1, line: "עמד/ה בהצלחה ב: מסלול ההכרות והיסודות", cheer: "ללמוד, להתנסות, ולהרחיב את גבולות האפשר." },
     intermediate: { c: "dp-l2", label: "בינוני", stars: 2, line: "עמד/ה בהצלחה ב: מסלול היישום בהוראה", cheer: "ללמוד, להתנסות, ולהרחיב את גבולות האפשר." },
@@ -34,7 +78,7 @@
  <path d="M6 12H150C160 12 164 4 172 4C180 4 182 12 190 12"/><path d="M394 12H250C240 12 236 4 228 4C220 4 218 12 210 12"/></g>
  <path d="M200 2l8 10-8 10-8-10z" fill="currentColor"/><circle cx="178" cy="12" r="2.2" fill="currentColor"/><circle cx="222" cy="12" r="2.2" fill="currentColor"/></svg>`;
   const blob = (r0, amp, ph) => { let d = ""; for (let i = 0; i <= 120; i++) { const t = i / 120 * Math.PI * 2; const r = r0 + amp * (Math.sin(5 * t + ph) * .9 + Math.sin(9 * t + ph * 2) * .55 + Math.sin(14 * t + ph * 3) * .3); d += (i ? "L" : "M") + (50 + r * Math.cos(t)).toFixed(2) + " " + (52 + r * Math.sin(t)).toFixed(2); } return d + "Z"; };
-  const wax = (L, k) => `<div class="dp-waxseal ${L.c}" role="img" aria-label="חותמת שעווה עם סמל גובלין, רמה ${L.label}">
+  const wax = (L, k) => `<div class="dp-waxseal ${L.c}" role="img" aria-label="${english() ? "Wax seal with the Goblin emblem, level " : "חותמת שעווה עם סמל גובלין, רמה "}${t(L.label)}">
  <svg viewBox="0 0 100 124" aria-hidden="true"><defs>
   <radialGradient id="wg${k}" cx=".35" cy=".28" r=".9"><stop offset="0" stop-color="var(--wax-hi)"/><stop offset=".45" stop-color="var(--wax-mid)"/><stop offset="1" stop-color="var(--wax-dark)"/></radialGradient>
   <linearGradient id="wr${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--wax-mid)"/><stop offset="1" stop-color="var(--wax-dark)"/></linearGradient></defs>
@@ -47,25 +91,25 @@
   const topicLine = (topics) => {
     const list = (topics || []).filter(Boolean);
     if (!list.length) return "";
-    const shown = list.slice(0, 3).join(", ");
-    return `<br>${list.length > 1 ? "נושאים" : "נושא"}: <b>${shown}${list.length === 4 ? " ועוד נושא אחד" : list.length > 4 ? ` ועוד ${list.length - 3} נושאים` : ""}</b>`;
+    const shown = list.slice(0, 3).map(topic => window.SiteI18n?.text(topic) || topic).join(", ");
+    return `<br>${list.length > 1 ? t("נושאים") : t("נושא")}: <b>${shown}${list.length === 4 ? (english() ? " and one more topic" : " ועוד נושא אחד") : list.length > 4 ? (english() ? ` and ${list.length - 3} more topics` : ` ועוד ${list.length - 3} נושאים`) : ""}</b>`;
   };
 
   // levelId: beginner | intermediate | advanced; topics: short topic names
   function html(levelId, name, topics, date) {
     const L = LEVELS[levelId] || LEVELS.beginner, k = "dp" + (++uid), v = clean(name);
-    const d = date || new Date().toLocaleDateString("he-IL", { day: "2-digit", month: "2-digit", year: "numeric" });
-    return `<section class="dp-cert ${L.c}" dir="rtl" lang="he" aria-label="דיפלומה, רמה ${L.label}">
+    const d = date || new Date().toLocaleDateString(english() ? "en-GB" : "he-IL", { day: "2-digit", month: "2-digit", year: "numeric" });
+    return `<section class="dp-cert ${L.c}" dir="${english() ? "ltr" : "rtl"}" lang="${english() ? "en" : "he"}" aria-label="${t("דיפלומה")}, ${t("רמה")} ${t(L.label)}">
  ${bg(k)}<div class="dp-inner">
-  <div class="dp-brand">המכללה לבינה מלאכותית בהוראה</div>${flourish}
-  <h2 class="dp-title">${STAR}<span>דיפלומה</span>${STAR}</h2>
-  <div class="dp-cheer">${L.cheer}</div><div class="dp-grant">מוענקת בזאת ל</div>
-  <div><div class="dp-name${v ? "" : " dp-empty"}${v.length > 30 ? " dp-xlong" : v.length > 22 ? " dp-long" : ""}">${v || "שם הלומד/ת"}</div>${flourish}</div>
-  <div class="dp-track">${L.line}${topicLine(topics)}</div>
+  <div class="dp-brand">${t("המכללה לבינה מלאכותית בהוראה")}</div>${flourish}
+  <h2 class="dp-title">${STAR}<span>${t("דיפלומה")}</span>${STAR}</h2>
+  <div class="dp-cheer">${t(L.cheer)}</div><div class="dp-grant">${t("מוענקת בזאת ל")}</div>
+  <div><div class="dp-name${v ? "" : " dp-empty"}${v.length > 30 ? " dp-xlong" : v.length > 22 ? " dp-long" : ""}">${v || t("שם הלומד/ת")}</div>${flourish}</div>
+  <div class="dp-track">${t(L.line)}${topicLine(topics)}</div>
   <div class="dp-bottom"><div class="dp-side">${d}</div>
-   <div class="dp-sealbox">${wax(L, k)}${STARS(L.stars)}<div class="dp-levelname">רמה: ${L.label}</div></div>
-   <div class="dp-side">ללמוד ללמד עם בינה מלאכותית</div></div>
-  <p class="dp-fine">דיפלומה פנימית של האתר. ההשלמה מדווחת על ידי הלומד/ת, ואינה מבחן, תואר או הסמכה אקדמית.</p>
+   <div class="dp-sealbox">${wax(L, k)}${STARS(L.stars)}<div class="dp-levelname">${t("רמה")}: ${t(L.label)}</div></div>
+   <div class="dp-side">${t("ללמוד ללמד עם בינה מלאכותית")}</div></div>
+  <p class="dp-fine">${t("דיפלומה פנימית של האתר. ההשלמה מדווחת על ידי הלומד/ת, ואינה מבחן, תואר או הסמכה אקדמית.")}</p>
  </div></section>`;
   }
 
@@ -142,39 +186,40 @@
     const opener = document.activeElement;
     const dlg = document.createElement("dialog");
     dlg.className = "dp-dialog";
-    dlg.dir = "rtl";
+    dlg.dir = english() ? "ltr" : "rtl";
+    dlg.lang = english() ? "en" : "he";
     dlg.setAttribute("aria-labelledby", "dp-dlg-title");
     // Deliberately unconnected until the owner supplies their private Form configuration.
     const form = window.SITE?.reflectionForm;
     const keys = ['learned','integration','level','topics','version'];
     const connected = !!form && /^https:\/\/docs\.google\.com\/forms\/d\/e\/[^/]+\/formResponse$/.test(form.url || '') && keys.every(k => /^entry\.\d+$/.test(form.fields?.[k] || ''));
     dlg.innerHTML = `<div class="dp-scroll">
-      <h2 id="dp-dlg-title">סיכום הלמידה והדיפלומה שלכם</h2>
-      <label for="dp-name">השם שיופיע בדיפלומה<input id="dp-name" maxlength="40" autocomplete="off"></label>
-      <p class="dp-meta">הדיפלומה עצמה נוצרת במכשיר שלכם. השם מיועד לדיפלומה בלבד ואינו נשלח. הטקסט אינו נשמר בדפדפן, ויישלח רק לאחר הסכמתכם. סגירת החלון מוחקת את הטקסט, לכן כדאי להעתיק אותו קודם.</p>
+      <h2 id="dp-dlg-title">${t("סיכום הלמידה והדיפלומה שלכם")}</h2>
+      <label for="dp-name">${t("השם שיופיע בדיפלומה")}<input id="dp-name" maxlength="40" autocomplete="off"></label>
+      <p class="dp-meta">${t("הדיפלומה עצמה נוצרת במכשיר שלכם. השם מיועד לדיפלומה בלבד ואינו נשלח. הטקסט אינו נשמר בדפדפן, ויישלח רק לאחר הסכמתכם. סגירת החלון מוחקת את הטקסט, לכן כדאי להעתיק אותו קודם.")}</p>
       <section data-dp-reflection>
-        <p role="note">אל תכתבו מידע מזהה על תלמידים או עמיתים. ${connected ? 'עידן הדיקן קורא את התשובות לצורך למידה ושיפור. לאחר אישור ושליחה, הטקסט יועבר באמצעות טופס חיצוני ויישמר בגיליון פרטי. לפניות השתמשו בפרטי הקשר באתר.' : 'שמירת הסיכומים אצל המרצה עדיין אינה מחוברת. כרגע שום טקסט לא נשלח. אפשר לכתוב, להעתיק ולהמשיך לדיפלומה.'}</p>
-        <label for="dp-learned">מה למדתי</label>
-        <p id="dp-learned-help">כתבו פסקה או שתיים: מה למדתם במסלול, ומה אתם לוקחים ממנו.</p>
+        <p role="note">${t("אל תכתבו מידע מזהה על תלמידים או עמיתים.")} ${connected ? t("עידן הדיקן קורא את התשובות לצורך למידה ושיפור. לאחר אישור ושליחה, הטקסט יועבר באמצעות טופס חיצוני ויישמר בגיליון פרטי. לפניות השתמשו בפרטי הקשר באתר.") : t("שמירת הסיכומים אצל המרצה עדיין אינה מחוברת. כרגע שום טקסט לא נשלח. אפשר לכתוב, להעתיק ולהמשיך לדיפלומה.")}</p>
+        <label for="dp-learned">${t("מה למדתי")}</label>
+        <p id="dp-learned-help">${t("כתבו פסקה או שתיים: מה למדתם במסלול, ומה אתם לוקחים ממנו.")}</p>
         <textarea id="dp-learned" rows="4" aria-describedby="dp-learned-help dp-learned-count"></textarea>
         <p id="dp-learned-count" class="dp-meta" aria-live="polite"></p>
-        <label for="dp-integration">בינה מלאכותית בלמידה ובהוראה שלי</label>
-        <p id="dp-integration-help">איך אתם רואים את השילוב של הבינה המלאכותית בלמידה שלכם ובהוראה שלכם?</p>
+        <label for="dp-integration">${t("בינה מלאכותית בלמידה ובהוראה שלי")}</label>
+        <p id="dp-integration-help">${t("איך אתם רואים את השילוב של הבינה המלאכותית בלמידה שלכם ובהוראה שלכם?")}</p>
         <textarea id="dp-integration" rows="4" aria-describedby="dp-integration-help dp-integration-count"></textarea>
         <p id="dp-integration-count" class="dp-meta" aria-live="polite"></p>
-        <label class="dp-consent"><input type="checkbox" data-dp-consent ${connected ? '' : 'disabled'}>קראתי ואני מסכים/ה שהטקסט שכתבתי יישלח ויישמר אצל המרצה.</label>
+        <label class="dp-consent"><input type="checkbox" data-dp-consent ${connected ? '' : 'disabled'}>${t("קראתי ואני מסכים/ה שהטקסט שכתבתי יישלח ויישמר אצל המרצה.")}</label>
       </section>
       <div data-dp-preview hidden></div>
       <p data-dp-status role="status"></p>
       </div>
       <div class="dp-actions">
-        <button type="button" class="btn" data-dp-send disabled>שליחה וקבלת הדיפלומה</button>
-        <button type="button" class="btn btn--ghost" data-dp-continue disabled>המשך לדיפלומה ללא שליחה</button>
-        <button type="button" class="btn btn--ghost" data-dp-copy>העתקת הטקסט שלי</button>
-        <button type="button" class="btn" data-dp-download hidden>הורדת PDF</button>
-        <button type="button" class="btn btn--ghost" data-dp-print hidden>הדפסה או שמירה לקובץ</button>
-        <button type="button" class="btn btn--ghost" data-dp-back hidden>חזרה לטקסט שלי</button>
-        <button type="button" class="btn btn--ghost" data-dp-close>סגירה</button>
+        <button type="button" class="btn" data-dp-send disabled>${t("שליחה וקבלת הדיפלומה")}</button>
+        <button type="button" class="btn btn--ghost" data-dp-continue disabled>${t("המשך לדיפלומה ללא שליחה")}</button>
+        <button type="button" class="btn btn--ghost" data-dp-copy>${t("העתקת הטקסט שלי")}</button>
+        <button type="button" class="btn" data-dp-download hidden>${t("הורדת PDF")}</button>
+        <button type="button" class="btn btn--ghost" data-dp-print hidden>${t("הדפסה או שמירה לקובץ")}</button>
+        <button type="button" class="btn btn--ghost" data-dp-back hidden>${t("חזרה לטקסט שלי")}</button>
+        <button type="button" class="btn btn--ghost" data-dp-close>${t("סגירה")}</button>
       </div>`;
     const input = dlg.querySelector("#dp-name"), prev = dlg.querySelector("[data-dp-preview]");
     const draw = () => { prev.innerHTML = html(levelId, input.value, topics); };
@@ -183,7 +228,7 @@
     let sendFailed=false;
     const words=value=>value.trim().split(/\s+/u).filter(Boolean).length;
     function validate(){
-      for(const field of [learned,integration]) { const count=words(field.value); dlg.querySelector('#'+field.id+'-count').textContent=count<30 ? `עוד ${30-count} מילים להשלמת הפסקה` : `${count} מילים`; }
+      for(const field of [learned,integration]) { const count=words(field.value); dlg.querySelector('#'+field.id+'-count').textContent=count<30 ? (english() ? `${30-count} more words to complete the paragraph` : `עוד ${30-count} מילים להשלמת הפסקה`) : (english() ? `${count} words` : `${count} מילים`); }
       const valid=words(learned.value)>=30 && words(integration.value)>=30;
       send.disabled=!connected || !valid || !consent.checked;
       next.disabled=!valid;
@@ -201,21 +246,21 @@
     next.addEventListener('click',()=>showDiploma(true));
     dlg.querySelector('[data-dp-back]').addEventListener('click',()=>showDiploma(false));
     dlg.querySelector('[data-dp-copy]').addEventListener('click',async()=>{
-      try { await navigator.clipboard.writeText(`מה למדתי\n${learned.value}\n\nבינה מלאכותית בלמידה ובהוראה שלי\n${integration.value}`); status.textContent='הטקסט הועתק.'; }
-      catch { status.textContent='ההעתקה האוטומטית לא הצליחה. אפשר לסמן את הטקסט ולהעתיק ידנית.'; learned.focus(); learned.select(); }
+      try { await navigator.clipboard.writeText(`${t("מה למדתי")}\n${learned.value}\n\n${t("בינה מלאכותית בלמידה ובהוראה שלי")}\n${integration.value}`); status.textContent=t("הטקסט הועתק."); }
+      catch { status.textContent=t("ההעתקה האוטומטית לא הצליחה. אפשר לסמן את הטקסט ולהעתיק ידנית."); learned.focus(); learned.select(); }
     });
     send.addEventListener('click',async()=>{
       if(send.disabled || !connected) return;
       send.disabled=true; sendFailed=false; next.hidden=true;
       const data=new URLSearchParams(), values={learned:learned.value,integration:integration.value,level:levelId,topics:topics.join(', '),version:'reflection-v1'};
       for(const key of keys) data.set(form.fields[key],values[key]);
-      try { await fetch(form.url,{method:'POST',mode:'no-cors',credentials:'omit',body:data,signal:AbortSignal.timeout(15000)}); status.textContent='בקשת השליחה הסתיימה. אין אפשרות לאמת מכאן שהטופס קלט אותה. מומלץ לשמור עותק של הטקסט.'; showDiploma(true); }
-      catch { sendFailed=true; status.textContent='השליחה לא הצליחה. הטקסט נשאר כאן. אפשר לנסות שוב, להעתיק אותו או להמשיך לדיפלומה ללא שליחה.'; }
+      try { await fetch(form.url,{method:'POST',mode:'no-cors',credentials:'omit',body:data,signal:AbortSignal.timeout(15000)}); status.textContent=t("בקשת השליחה הסתיימה. אין אפשרות לאמת מכאן שהטופס קלט אותה. מומלץ לשמור עותק של הטקסט."); showDiploma(true); }
+      catch { sendFailed=true; status.textContent=t("השליחה לא הצליחה. הטקסט נשאר כאן. אפשר לנסות שוב, להעתיק אותו או להמשיך לדיפלומה ללא שליחה."); }
       finally { validate(); }
     });
     validate();
     input.addEventListener("input", draw);
-    dlg.querySelector('[data-dp-download]').addEventListener('click',async e=>{const button=e.currentTarget;button.disabled=true;button.textContent='מכין את הקובץ…';try{await downloadPDF(levelId,input.value,topics);button.textContent='הורדת PDF';}catch(error){button.textContent='ההורדה נכשלה, אפשר להדפיס ולשמור לקובץ';}finally{button.disabled=false;}});
+    dlg.querySelector('[data-dp-download]').addEventListener('click',async e=>{const button=e.currentTarget;button.disabled=true;button.textContent=t("מכין את הקובץ…");try{await downloadPDF(levelId,input.value,topics);button.textContent=t("הורדת PDF");}catch(error){button.textContent=t("ההורדה נכשלה, אפשר להדפיס ולשמור לקובץ");}finally{button.disabled=false;}});
     dlg.querySelector("[data-dp-print]").addEventListener("click", () => print(html(levelId, input.value, topics)));
     dlg.querySelector("[data-dp-close]").addEventListener("click", () => dlg.close());
     dlg.addEventListener("close", () => { dlg.remove(); if (opener && opener.isConnected) opener.focus({ preventScroll: true }); }, { once: true });
