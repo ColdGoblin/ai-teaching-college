@@ -68,6 +68,11 @@
 .dp-dialog textarea{display:block;box-sizing:border-box;width:100%;resize:vertical;min-height:120px;font:inherit;line-height:1.6;padding:10px;border:1px solid var(--ink);border-radius:6px;background:#fff;color:var(--ink)}
 .dp-dialog .dp-consent{display:flex;align-items:start;gap:10px;min-height:44px}
 .dp-dialog .dp-consent input{width:22px;min-height:22px;flex:none;margin-top:4px}
+.dp-dialog .dp-consent span{flex:1;min-width:0;font-weight:500;line-height:1.6}
+.dp-reflection-intro{font-weight:600;line-height:1.6}
+.dp-reflection-part{min-width:0;border:1px solid var(--line);border-radius:8px;padding:14px;margin:18px 0}
+.dp-reflection-part legend{font-weight:700;padding-inline:6px;max-width:100%;line-height:1.5}
+.dp-dialog .dp-actions .dp-requirements{flex-basis:100%;margin:0;font-size:var(--step--1,.95rem);line-height:1.5}
 .dp-dialog [hidden]{display:none!important}
 .diploma-sample [data-dp-sample],.diploma-sample .dp-note{margin-inline:auto}
 .diploma-sample .dp-picker{justify-content:center}

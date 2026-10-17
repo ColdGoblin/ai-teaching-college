@@ -210,21 +210,27 @@
       <p class="dp-meta">${t("הדיפלומה עצמה נוצרת במכשיר שלכם. השם מיועד לדיפלומה בלבד ואינו נשלח. הטקסט אינו נשמר בדפדפן, ויישלח רק לאחר הסכמתכם. סגירת החלון מוחקת את הטקסט, לכן כדאי להעתיק אותו קודם.")}</p>
       <section data-dp-reflection>
         <p role="note">${t("אל תכתבו מידע מזהה על תלמידים או עמיתים.")} ${connected ? t("עידן הדיקן קורא את התשובות לצורך למידה ושיפור. לאחר אישור ושליחה, הטקסט יועבר באמצעות טופס חיצוני ויישמר בגיליון פרטי. לפניות השתמשו בפרטי הקשר באתר.") : t("שמירת הסיכומים אצל המרצה עדיין אינה מחוברת. כרגע שום טקסט לא נשלח. אפשר לכתוב, להעתיק ולהמשיך לדיפלומה.")}</p>
+        <p class="dp-reflection-intro">${english() ? 'Complete both parts below, at least 10 words in each. You may then submit with consent or continue without submitting.' : 'יש למלא שני חלקים, לפחות 10 מילים בכל חלק. לאחר מכן אפשר לשלוח בהסכמה או להמשיך ללא שליחה.'}</p>
+        <fieldset class="dp-reflection-part"><legend>${english() ? 'Part 1 of 2: What I learned' : 'חלק ראשון מתוך שניים: מה למדתי'}</legend>
         <label for="dp-learned">${t("מה למדתי")}</label>
         <p id="dp-learned-help">${t("כתבו פסקה או שתיים: מה למדתם במסלול, ומה אתם לוקחים ממנו.")}</p>
         <textarea id="dp-learned" rows="4" aria-describedby="dp-learned-help dp-learned-count"></textarea>
         <p id="dp-learned-count" class="dp-meta" aria-live="polite"></p>
+        </fieldset>
+        <fieldset class="dp-reflection-part"><legend>${english() ? 'Part 2 of 2: Applying AI in my learning and teaching' : 'חלק שני מתוך שניים: שילוב בינה מלאכותית בלמידה ובהוראה שלי'}</legend>
         <label for="dp-integration">${t("בינה מלאכותית בלמידה ובהוראה שלי")}</label>
         <p id="dp-integration-help">${t("איך אתם רואים את השילוב של הבינה המלאכותית בלמידה שלכם ובהוראה שלכם?")}</p>
         <textarea id="dp-integration" rows="4" aria-describedby="dp-integration-help dp-integration-count"></textarea>
         <p id="dp-integration-count" class="dp-meta" aria-live="polite"></p>
-        <label class="dp-consent"><input type="checkbox" data-dp-consent ${connected ? '' : 'disabled'}>${t("קראתי ואני מסכים/ה שהטקסט שכתבתי יישלח ויישמר אצל המרצה.")}</label>
+        </fieldset>
+        <label class="dp-consent" ${connected ? '' : 'hidden'}><input type="checkbox" data-dp-consent><span>${t("קראתי ואני מסכים/ה שהטקסט שכתבתי יישלח ויישמר אצל המרצה.")}</span></label>
       </section>
       <div data-dp-preview hidden></div>
       <p data-dp-status role="status"></p>
       </div>
       <div class="dp-actions">
-        <button type="button" class="btn" data-dp-send disabled>${t("שליחה וקבלת הדיפלומה")}</button>
+        <p class="dp-requirements" data-dp-requirements role="status"></p>
+        <button type="button" class="btn" data-dp-send disabled ${connected ? '' : 'hidden'}>${t("שליחה וקבלת הדיפלומה")}</button>
         <button type="button" class="btn btn--ghost" data-dp-continue disabled>${t("המשך לדיפלומה ללא שליחה")}</button>
         <button type="button" class="btn btn--ghost" data-dp-copy>${t("העתקת הטקסט שלי")}</button>
         <button type="button" class="btn" data-dp-download hidden>${t("הורדת PDF")}</button>
@@ -236,24 +242,27 @@
     const draw = () => { prev.innerHTML = html(levelId, input.value, topics, undefined, evidence); };
     const learned=dlg.querySelector('#dp-learned'), integration=dlg.querySelector('#dp-integration');
     const send=dlg.querySelector('[data-dp-send]'), next=dlg.querySelector('[data-dp-continue]'), consent=dlg.querySelector('[data-dp-consent]'), status=dlg.querySelector('[data-dp-status]');
-    let sendFailed=false;
     const words=value=>value.trim().split(/\s+/u).filter(Boolean).length;
     function validate(){
-      for(const field of [learned,integration]) { const count=words(field.value); dlg.querySelector('#'+field.id+'-count').textContent=count<30 ? (english() ? `${30-count} more words to complete the paragraph` : `עוד ${30-count} מילים להשלמת הפסקה`) : (english() ? `${count} words` : `${count} מילים`); }
-      const valid=words(learned.value)>=30 && words(integration.value)>=30;
+      for(const field of [learned,integration]) { const count=words(field.value); dlg.querySelector('#'+field.id+'-count').textContent=count<10 ? (english() ? `${count} of at least 10 words; ${10-count} more needed` : `${count} מילים מתוך 10 לפחות. חסרות ${10-count} מילים.`) : (english() ? `${count} words; minimum met` : `${count} מילים. הגעתם למינימום.`); }
+      const first=words(learned.value),second=words(integration.value),valid=first>=10 && second>=10;
+      dlg.querySelector('[data-dp-requirements]').textContent=english() ? `Part 1: ${first}/10 words · Part 2: ${second}/10 words` : `חלק ראשון: ${first} מתוך 10 מילים. חלק שני: ${second} מתוך 10 מילים.`;
       send.disabled=!connected || !valid || !consent.checked;
       next.disabled=!valid;
-      next.hidden=!prev.hidden || (connected && !sendFailed);
+      next.hidden=!prev.hidden;
     }
     function showDiploma(show){
       dlg.querySelector('[data-dp-reflection]').hidden=show; prev.hidden=!show;
-      for(const key of ['send','copy']) dlg.querySelector('[data-dp-'+key+']').hidden=show;
-      next.hidden=show || (connected && !sendFailed);
+      send.hidden=show || !connected;
+      dlg.querySelector('[data-dp-copy]').hidden=show;
+      dlg.querySelector('[data-dp-requirements]').hidden=show;
+      next.hidden=show;
       for(const key of ['download','print','back']) dlg.querySelector('[data-dp-'+key+']').hidden=!show;
       dlg.querySelector('.dp-scroll').scrollTop=0;
       (show ? dlg.querySelector('[data-dp-download]') : learned).focus();
     }
     for(const field of [learned,integration,consent]) field.addEventListener('input',validate);
+    consent.addEventListener('change',validate);
     next.addEventListener('click',()=>showDiploma(true));
     dlg.querySelector('[data-dp-back]').addEventListener('click',()=>showDiploma(false));
     dlg.querySelector('[data-dp-copy]').addEventListener('click',async()=>{
@@ -272,11 +281,11 @@
         invalid.focus();
         return;
       }
-      send.disabled=true; sendFailed=false; next.hidden=true;
+      send.disabled=true; next.disabled=true;
       const data=new URLSearchParams(), values={learned:learned.value,integration:integration.value,level:levelId,topics:topics.join(', '),version:'reflection-v1'};
       for(const key of keys) data.set(form.fields[key],values[key]);
       try { await fetch(form.url,{method:'POST',mode:'no-cors',credentials:'omit',body:data,signal:AbortSignal.timeout(15000)}); status.textContent=t("בקשת השליחה הסתיימה. אין אפשרות לאמת מכאן שהטופס קלט אותה. מומלץ לשמור עותק של הטקסט."); showDiploma(true); }
-      catch { sendFailed=true; status.textContent=t("השליחה לא הצליחה. הטקסט נשאר כאן. אפשר לנסות שוב, להעתיק אותו או להמשיך לדיפלומה ללא שליחה."); }
+      catch { status.textContent=t("השליחה לא הצליחה. הטקסט נשאר כאן. אפשר לנסות שוב, להעתיק אותו או להמשיך לדיפלומה ללא שליחה."); }
       finally { validate(); }
     });
     validate();
