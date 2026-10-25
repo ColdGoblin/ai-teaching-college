@@ -465,6 +465,7 @@
       <p class="practice__legend" aria-label="${tr("סוגי התרגול")}">${tr("רגיל · מתקדם · העמקה, לא חובה")}</p>
       ${p.skill ? `<p class="meta" data-unit-skill><strong>${bi("הכישור שמתרגלים:", "Skill to practise:")}</strong> ${esc(p.skill)}</p>` : ""}
       <p class="practice__goal"><strong>${x.goal}:</strong> ${esc(L(p, "goal"))}</p>
+      ${academyGuide(p)}
       ${p.why ? `<p class="practice__why"><strong>${x.why}:</strong> ${esc(L(p, "why"))}</p>` : ""}
       ${p.predict ? `<p class="practice__predict"><strong>${x.predict}:</strong> ${st.predict?.trim() ? esc(st.predict) : x.predictEmpty}</p>` : ""}
       ${(() => {
@@ -476,7 +477,7 @@
       ${p.briefRecommendation ? `<aside class="notice"><p>${esc(p.briefRecommendation)}</p><a class="linkbtn" href="#b3">${tr("לסדנת האפיון")}</a></aside>` : ""}
       ${p.skillAccess ? `<section class="skill-access" dir="${t().dir}" lang="${lang}"><h3>${tr("סקילים: איפה זה ומה עושים אם אין?")}</h3><p>${tr("אפשר להשלים את התרגול גם בלי תכונת סקילים בחשבון.")}</p><details><summary>${tr("איתור התכונה, זמינות בחשבון וחלופה ידנית")}</summary>${p.skillAccess.map(([title,text])=>`<h4>${esc(title)}</h4><p>${esc(text)}</p>`).join("")}<p><a href="https://support.google.com/gemini/answer/17094296?hl=iw" target="_blank" rel="noopener">${tr("הנחיות Google ליצירת סקילים")}</a></p><p><a href="https://knowledge.workspace.google.com/admin/generative-ai/gemini-app/about-the-transition-to-skills?hl=en" target="_blank" rel="noopener">${tr("לוח המעבר הרשמי לחשבונות חינוך")}</a></p></details></section>` : ""}
       <div class="practice__block" data-practice-steps><h3>${x.steps}</h3><ol>${L(p, "steps").map((s) => `<li>${esc(s)}</li>`).join("")}</ol></div>
-      ${p.creative ? `<details class="practice__creative"><summary>${tr("העמקה יצירתית, לא חובה: ")}${esc(p.creative.title)}</summary><p>${esc(p.creative.task)}</p><p><strong>${tr("מה לשמור:")}</strong> ${esc(p.creative.output)}</p></details>` : ""}
+      ${p.creative && (!p.creative.language || p.creative.language === lang) ? `<details class="practice__creative"><summary>${tr("העמקה יצירתית, לא חובה: ")}${esc(p.creative.title)}</summary><p>${esc(p.creative.task)}</p>${p.creative.steps?.length ? `<ol>${p.creative.steps.map(step => `<li>${esc(step)}</li>`).join("")}</ol>` : ""}<p><strong>${tr("מה לשמור:")}</strong> ${esc(p.creative.output)}</p></details>` : ""}
       ${p.explainer ? `<section class="practice__block" dir="${t().dir}" lang="${lang}"><h3>${tr("איך בנוי סקיל")}</h3>${p.explainer.map(([title,text]) => `<h4>${esc(title)}</h4><p>${esc(text)}</p>`).join("")}<p><a href="https://developers.openai.com/plugins/concepts/skills" target="_blank" rel="noopener">${tr("מקור: התיעוד הרשמי על סקילים")}</a></p></section>` : ""}
       ${p.skillExamples ? `<section class="practice__block skill-examples" dir="${t().dir}" lang="${lang}"><h3>${tr("שלוש דוגמאות לסקילים")}</h3>${p.skillExamples.map((ex,exampleIndex) => `<details class="skill-example"${exampleIndex === 0 ? " open" : ""}><summary>${esc(ex.title)}</summary><p class="skill-example__name" dir="ltr" lang="en"><code>${esc(ex.name)}</code></p><h5>${tr("תיאור: מה עושה ומתי להפעיל")}</h5><div class="tpl"><p class="tpl__text" dir="ltr" lang="en">${esc(ex.description)}</p><button type="button" class="tpl__copy" data-copy aria-label="${tr("העתקת התיאור: ")}${esc(ex.title)}">${tr("העתקת התיאור")}</button></div><h5>${tr("הוראות העבודה")}</h5><div class="tpl"><p class="tpl__text">${esc(ex.instructions)}</p><button type="button" class="tpl__copy" data-copy aria-label="${tr("העתקת ההוראות: ")}${esc(ex.title)}">${tr("העתקת ההוראות")}</button></div><p><strong>${tr("למה זו דוגמה טובה:")}</strong> ${esc(ex.why)}</p><h5>${tr("בקשות שאמורות להפעיל את הסקיל")}</h5><ul>${ex.yes.map(text=>`<li>${esc(text)}</li>`).join('')}</ul><h5>${tr("בקשות שלא אמורות להפעיל אותו")}</h5><ul>${ex.no.map(text=>`<li>${esc(text)}</li>`).join('')}</ul></details>`).join('')}<h4>${tr("שילוב באותה שיחה")}</h4><p>${esc(p.skillsFlow)}</p></section>` : ""}
       ${p.manualCheckNote ? `<p class="notice">${esc(p.manualCheckNote)}</p>` : ""}
@@ -516,6 +517,18 @@
         <p class="practice__foot"><span class="meta" data-saved hidden>${x.saved}</span><a href="#portfolio">${x.allMine}</a></p></div>
     </section>`;
   }
+  function academyGuide(practice) {
+    const guide = practice.academyGuide;
+    if (lang !== "he" || !guide) return "";
+    return `<details class="practice__block" data-academy-guide dir="rtl" lang="he"><summary>מדריך מדורג: ${esc(guide.title)}</summary><p>${esc(guide.intro)}</p>${guide.sections.map(section => `<h3>${esc(section.title)}</h3>${section.officialName ? `<p dir="ltr" lang="en">${esc(section.officialName)}</p>` : ""}<p>${esc(section.text)}</p>`).join("")}<h3>${esc(guide.example.title)}</h3><p class="meta">${esc(guide.example.context)}</p><ol>${guide.example.items.map(item => `<li>${esc(item)}</li>`).join("")}</ol><h3>בקשה שאפשר להעתיק ולשנות</h3><div class="tpl"><p class="tpl__text">${esc(guide.prompt)}</p><button type="button" class="tpl__copy" data-copy>העתקה</button></div><h3>איך בודקים את העבודה</h3><ul>${guide.review.map(item => `<li>${esc(item)}</li>`).join("")}</ul><p>${esc(guide.output)}</p><details><summary>לבדיקת היכולות העדכניות בכלי</summary><ul>${guide.sources.map(source => `<li><a href="${esc(source.url)}" target="_blank" rel="noopener">${esc(source.title)}</a></li>`).join("")}</ul></details></details>`;
+  }
+
+  function academyUnitOverview(ref) {
+    const guide = PR[ref]?.academyGuide;
+    if (lang !== "he" || !guide) return "";
+    return `<section class="practice__block" data-academy-overview dir="rtl" lang="he"><h2>כך עובדים ביחידה</h2><p>${esc(guide.destination)}</p>${guide.currentToolName ? `<p>שם הכלי כיום:</p><p dir="ltr" lang="en">${esc(guide.currentToolName)}</p><p class="meta">בהקלטת המקור עשוי להופיע השם הקודם.</p>` : ""}<ol><li>כתבו את המחשבה הראשונית שלכם בתיבה שלפני החומרים.</li><li>עיינו בהקלטה ובמצגת המתאימה, ואז פתחו את המדריך המדורג שבתרגול.</li><li>בצעו את התרגול המודרך. להעמקה, בחרו גם בתרגול היצירתי או באתגר למתקדמים.</li><li>ענו על שאלות ההבנה, בדקו את התוצר מול הקריטריונים ושמרו את ההחלטה והבדיקה שלכם בתיבת התוצר.</li></ol><p><a href="${esc(guide.recording.url)}" target="_blank" rel="noopener">${esc(guide.recording.title)}</a></p><p><a href="${esc(guide.slides.url)}" target="_blank" rel="noopener">${esc(guide.slides.title)}</a></p><p class="meta">זמן התרגול מוצג בנפרד ממשך הקלטת המקור. שמירת התוצרים והסימונים נעשית בדפדפן שלכם.</p></section>`;
+  }
+
   // the prediction is asked before the media, so learners commit to it before watching
   const predictBox = (ref) => {
     const p = PR[ref];
@@ -583,6 +596,7 @@
           <p class="why">${esc(whyFor(info.step.stage))}</p>
         </header>
         ${predictBox(ref)}
+        ${academyUnitOverview(ref)}
         ${segBox(info.step)}
         ${media}
         ${taskBox(ref)}
@@ -903,6 +917,7 @@
         </header>
         ${updateNote(w)}
         ${predictBox(w.id)}
+        ${academyUnitOverview(w.id)}
         ${lessonMedia(w)}
         ${taskBox(w.id)}
         ${lessonExtras(w)}
