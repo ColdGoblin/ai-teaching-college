@@ -452,9 +452,52 @@
     return { done: isDone(ref), saved: !!st.note?.trim() && !saveFailed, checked: !!st.note?.trim() && !saveFailed && checks.length > 0 && checks.every((_, i) => st.checks?.[i]) };
   };
   const prState = (pid) => (journey.practice ||= {})[pid] ||= { checks: [], note: "", quiz: {} };
+  // reasoned-decision checks: a separate versioned state, decisionChecks[version][unitId]; old quiz answers stay stored in practice[pid].quiz and are not graded
+  const UC = window.SITE_UNDERSTANDING || { version: "", he: {}, en: {} };
+  const dcCase = (ref) => UC[lang]?.[ref] || null;
+  const dcRead = (pid) => journey.decisionChecks?.[UC.version]?.[pid] || {};
+  const dcState = (pid) => {
+    if (!journey.decisionChecks || typeof journey.decisionChecks !== "object") journey.decisionChecks = {};
+    const byVersion = (journey.decisionChecks[UC.version] ||= {});
+    return (byVersion[pid] ||= { first: "", adapt: "", revise: "", changed: false, explained: false });
+  };
+  const dcHasWork = (pid) => { const d = dcRead(pid); return !!(d.first?.trim() || d.adapt?.trim() || d.revise?.trim()); };
   const prTouched = (pid) => {
     const st = journey.practice?.[pid];
-    return !!st && (st.note?.trim() || st.predict?.trim() || st.checks?.some(Boolean) || Object.keys(st.quiz || {}).length);
+    return (!!st && (st.note?.trim() || st.predict?.trim() || st.checks?.some(Boolean) || Object.keys(st.quiz || {}).length)) || dcHasWork(pid);
+  };
+  function decisionCheck(ref, p) {
+    const c = dcCase(ref);
+    if (!c) return "";
+    const d = dcRead(p.id), id = `dc-${p.id}`;
+    const toggle = (key, open, label) => `<button type="button" class="btn btn--ghost dcheck__btn" data-dc-reveal="${key}" aria-expanded="${open}" aria-controls="${id}-${key}">${label}</button>`;
+    const field = (key, label, val, rows) => `<label class="note-label" for="${id}-${key}-f">${label}</label><textarea id="${id}-${key}-f" class="note" data-dc-field="${key}" rows="${rows}">${esc(val || "")}</textarea>`;
+    const old = Object.keys(journey.practice?.[p.id]?.quiz || {}).length;
+    return `<div class="practice__block dcheck" data-dcheck dir="${t().dir}" lang="${lang}">
+      <h3>${bi("שאלת הבנה: החלטה, שינוי והסבר", "Check your understanding: decide, adapt, explain")}</h3>
+      <p class="meta">${bi("המקרה הבא מומצא ומדגים מצב אפשרי בכיתה; הוא אינו ציטוט מהשיעור ואינו אירוע אמיתי. זו הערכה עצמית מוסברת, לא ציון אוטומטי ולא אישור שהבנתם. סימון השלמה מתעד עבודה שנעשתה, לא שליטה מוכחת.", "This case is invented to show a possible classroom situation; it is not quoted from the lesson and not a real incident. This is explained self-assessment, not an automatic grade or certification of understanding. Marking complete records work done, not verified mastery.")}</p>
+      <p class="dcheck__case"><strong>${bi("המקרה:", "The case:")}</strong> ${esc(c.case)}</p>
+      ${field("first", esc(c.task), d.first, 3)}
+      <p>${toggle("change", !!d.changed, bi("חשיפת שינוי בתנאים", "Reveal the changed condition"))}</p>
+      <div id="${id}-change" data-dc-panel="change" ${d.changed ? "" : "hidden"}>
+        <p class="dcheck__change"><strong>${bi("מה השתנה:", "What changed:")}</strong> ${esc(c.change)}</p>
+        ${field("adapt", bi("התאימו את התשובה שלכם. אפשר להשאיר את הראשונה ולהוסיף עליה.", "Adapt your answer. You can keep your first one and build on it."), d.adapt, 3)}
+        <p>${toggle("explained", !!d.explained, bi("חשיפת הסבר וקריטריונים לבדיקה עצמית", "Reveal the explanation and self-check criteria"))}</p>
+      </div>
+      <div id="${id}-explained" data-dc-panel="explained" ${d.changed && d.explained ? "" : "hidden"}>
+        <p class="dcheck__explain"><strong>${bi("הסבר:", "Explanation:")}</strong> ${esc(c.explain)}</p>
+        <p class="dcheck__criteria"><strong>${bi("מה לבדוק בעצמכם:", "What to check yourself:")}</strong> ${esc(c.check)}</p>
+        ${field("revise", bi("מה השתנה בתשובה שלכם ולמה, או למה ההחלטה המקורית נשארת? 2 עד 4 שורות. אפשר גם לקבל תוצאה מתאימה של כלי בינה מלאכותית ולהסביר למה.", "What changed in your answer and why, or why does your original decision stand? 2 to 4 lines. Accepting a suitable AI result is fine; explain why."), d.revise, 3)}
+      </div>
+      <p class="meta">${bi("אפשר להמשיך גם בלי לכתוב. החשיפה היא כפתור בלבד ואינה מעריכה אתכם. התשובות נשמרות במכשיר הזה בלבד ונכללות בתיק התוצרים.", "You can continue without writing. Revealing is a button only and does not assess you. Answers are saved on this device only and are included in your portfolio.")}</p>
+      ${old ? `<p class="meta">${bi("תשובות קודמות לשאלות רב-ברירה נשמרו ואינן נספרות.", "Your earlier multiple-choice answers are kept and no longer count.")}</p>` : ""}
+    </div>`;
+  }
+  const dcPortfolioText = (pid) => {
+    const d = dcRead(pid);
+    if (!dcHasWork(pid)) return "";
+    return [[bi("תשובה ראשונה", "First answer"), d.first], [bi("התאמה לאחר שינוי התנאים", "Adapted answer"), d.adapt], [bi("תיקון והסבר", "Revision and explanation"), d.revise]]
+      .filter(([, v]) => v?.trim()).map(([k, v]) => `${k}:\n${v}`).join("\n\n");
   };
   function practiceCard(ref) {
     const p = PR[ref];
@@ -490,7 +533,8 @@
               .join("")}</div>`
           : "";
       })()}
-      ${L(p, "quiz")
+      ${decisionCheck(ref, p)}
+      ${(dcCase(ref) ? [] : L(p, "quiz") || [])
         .map((q, qi) => {
           const ans = st.quiz?.[qi];
           return `<div class="practice__block quiz"><h3>${x.quiz}</h3><p class="quiz__q">${esc(q.q)}</p><div class="quiz__opts">${q.options
@@ -547,13 +591,14 @@
       ? `<div class="pf__tools"><button type="button" class="btn" data-pf-copy>${x.pfCopy}</button><button type="button" class="btn btn--ghost" data-pf-download>${x.pfDownload}</button></div>
          <ol class="pf">${items
            .map(([ref, p]) => {
-             const st = journey.practice[p.id];
+             const st = journey.practice[p.id] || {};
              const href = resolveRef(ref)?.href || "#";
              const n = (st.checks || []).filter(Boolean).length;
              return `<li class="pf__item"><div class="pf__head"><span class="practice__badge">✎ ${p.id}</span><h3>${esc(L(p, "title"))}</h3><span class="meta">${x.pfChecks(n, L(p, "checks").length)}</span></div>
                ${st.predict?.trim() ? `<p class="pf__label">${x.predict}</p><p class="pf__note">${linkify(st.predict)}</p>` : ""}
                <p class="pf__label">${esc(L(p, "output"))}</p>
                <p class="pf__note">${st.note?.trim() ? linkify(st.note) : "—"}</p>
+               ${dcHasWork(p.id) ? `<p class="pf__label">${bi("שאלת הבנה: החלטה, שינוי והסבר", "Understanding check: decide, adapt, explain")}</p><p class="pf__note">${linkify(dcPortfolioText(p.id))}</p>` : ""}
                <a href="${href}" data-jump>${x.pfOpen}</a></li>`;
            })
            .join("")}</ol>`
@@ -565,10 +610,10 @@
     return Object.entries(PR)
       .filter(([, p]) => prTouched(p.id))
       .map(([, p]) => {
-        const st = journey.practice[p.id];
+        const st = journey.practice[p.id] || {};
         const checks = L(p, "checks").map((c, i) => `${st.checks?.[i] ? "[x]" : "[ ]"} ${c}`).join("\n");
         const qs = (p.selfCheck || L(p, "reflect") || []).map((r) => `- ${r}`).join("\n");
-        return `## ${p.id} · ${L(p, "title")}\n${st.predict?.trim() ? `${t().pr.predict}:\n${st.predict}\n\n` : ""}${L(p, "output")}:\n${st.note || "—"}\n\n${checks}${qs ? `\n\n${qs}` : ""}${p.transfer ? `\n\n${bi("העברה (לא חובה)", "Transfer (optional)")}: ${p.transfer}` : ""}`;
+        return `## ${p.id} · ${L(p, "title")}\n${st.predict?.trim() ? `${t().pr.predict}:\n${st.predict}\n\n` : ""}${L(p, "output")}:\n${st.note || "—"}${dcPortfolioText(p.id) ? `\n\n${dcPortfolioText(p.id)}` : ""}\n\n${checks}${qs ? `\n\n${qs}` : ""}${p.transfer ? `\n\n${bi("העברה (לא חובה)", "Transfer (optional)")}: ${p.transfer}` : ""}`;
       })
       .join("\n\n---\n\n");
   }
@@ -1206,6 +1251,17 @@
       });
       return;
     }
+    const dr = e.target.closest("[data-dc-reveal]");
+    if (dr) {
+      const key = dr.dataset.dcReveal, box = dr.closest("[data-pid]");
+      const st = dcState(box.dataset.pid);
+      st[key === "change" ? "changed" : "explained"] = true;
+      saveJourney();
+      dr.setAttribute("aria-expanded", "true");
+      const panel = box.querySelector(`[data-dc-panel="${key}"]`);
+      if (panel) panel.hidden = false;
+      return;
+    }
     const qo = e.target.closest("[data-quiz]");
     if (qo) {
       const pid = qo.closest("[data-pid]").dataset.pid;
@@ -1281,6 +1337,17 @@
   });
   let noteTimer;
   app.addEventListener("input", (e) => {
+    if (e.target.matches("[data-dc-field]")) {
+      const box = e.target.closest("[data-pid]");
+      dcState(box.dataset.pid)[e.target.dataset.dcField] = e.target.value;
+      clearTimeout(noteTimer);
+      noteTimer = setTimeout(() => {
+        const ok = saveJourney();
+        const s = box.querySelector("[data-saved]");
+        if (s) s.hidden = !ok;
+      }, 400);
+      return;
+    }
     if (e.target.matches("[data-pnote], [data-ppredict]")) {
       const pid = e.target.closest("[data-pid]").dataset.pid;
       prState(pid)[e.target.matches("[data-ppredict]") ? "predict" : "note"] = e.target.value;

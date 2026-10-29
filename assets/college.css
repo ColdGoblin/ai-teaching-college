@@ -321,3 +321,10 @@ a { color: var(--navy); }
 .quality-example h4{margin-block:24px 8px}
 .quality-example section{margin-block:24px}
 .path-reset-dialog[open]{height:auto;width:min(620px,94vw)}
+.dcheck textarea.note{min-height:96px;font-size:1rem;line-height:1.6;margin-block:6px 12px}
+.dcheck .dcheck__btn{min-height:44px;min-width:44px;white-space:normal;text-align:center}
+.dcheck p{max-width:68ch;line-height:1.7;overflow-wrap:anywhere}
+.dcheck__case,.dcheck__change{padding:12px 14px;border-radius:10px;background:var(--paper);box-shadow:inset 4px 0 0 var(--gold,#c9a227)}
+[dir="rtl"] .dcheck__case,[dir="rtl"] .dcheck__change{box-shadow:inset -4px 0 0 var(--gold,#c9a227)}
+.dcheck [hidden]{display:none}
+.dcheck .meta{font-size:.95rem}
