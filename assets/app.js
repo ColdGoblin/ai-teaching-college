@@ -644,12 +644,14 @@
         ${academyUnitOverview(ref)}
         ${segBox(info.step)}
         ${media}
+        ${toolsBlock(ref)}
         ${taskBox(ref)}
         ${missingOutputNote(ref)}
         <div class="finish">
           <button type="button" class="btn btn--big" data-complete="${esc(ref)}">${isLast ? t().finishLast : t().finishNext}</button>
           <a href="#start" class="linkbtn">${t().notYet}</a>
         </div>
+        ${nextLessonBlock(ref)}
         ${more ? `<details class="more"><summary>${t().moreHere}</summary><div class="more__body">${more}</div></details>` : ""}
       </article>`;
   }
@@ -921,6 +923,63 @@
     return points?.length ? `<section class="learn lesson-key-points" data-lesson-key-points dir="${t().dir}" lang="${lang}"><h2>${tr("עיקרי הדברים")}</h2>${summary.sourceNote ? `<p class="meta">${esc(summary.sourceNote)}</p>` : ""}<ul>${points.map(text => `<li>${esc(text)}</li>`).join("")}</ul></section>` : "";
   }
 
+  // ---------- next lesson and tools shown in the lesson ----------
+  const TL = window.SITE_TOOLS || { registry: {}, lessonTools: {} };
+  let focusHeading = false; // after "next lesson", focus lands on the new lesson's heading
+  // where "next" leads from a page: the chosen path first, then the fixed course / bonus / foundations order.
+  // Browsing never changes completion; unchosen items follow S.workshops, S.bonus and J.foundations as they are.
+  function nextTarget(ref) {
+    const dest = (r) => { const x = resolveRef(r); return x ? { href: x.href, title: x.title } : null; };
+    if (hasPath()) {
+      const all = pathSteps(), i = all.findIndex((s) => s.ref === ref);
+      if (i >= 0) {
+        const nxt = all.slice(i + 1).find((s) => !s.optional);
+        const side = all[i + 1]?.optional ? all[i + 1] : null;
+        return { next: nxt ? { href: nxt.href, title: nxt.title } : null, optional: side ? { href: side.href, title: side.title } : null, end: { href: "#start", label: bi("חזרה למסלול שלי", "Back to my path"), final: true } };
+      }
+    }
+    const seqs = [
+      [S.workshops.map((w) => w.id), "#kaye", bi("חזרה לסדנאות המכללה", "Back to the college workshops")],
+      [S.bonus.map((w) => w.id), "#bonus", bi("חזרה לשיעורי הבונוס", "Back to the bonus sessions")],
+      [J.foundations, "#all", bi("חזרה לכל החומרים", "Back to all materials")],
+    ];
+    const seq = seqs.find(([ids]) => ids.includes(ref));
+    if (seq) {
+      const nid = seq[0][seq[0].indexOf(ref) + 1];
+      return { next: nid ? dest(nid) : null, end: { href: seq[1], label: seq[2], final: true } };
+    }
+    // a short video or deck that belongs to one lesson points back to it; several lessons are listed explicitly
+    const parents = ref.startsWith("v:") ? lessonsUsingVideo(ref.slice(2)) : ref.startsWith("g:") ? lessonsUsingDeck(ref.slice(2)) : [];
+    if (parents.length === 1) return { back: { href: `#${parents[0].id}`, title: L(parents[0], "title") } };
+    if (parents.length > 1) return { parents: parents.map((w) => ({ href: `#${w.id}`, title: L(w, "title") })) };
+    return ref.startsWith("v:")
+      ? { end: { href: "#mini", label: bi("חזרה לסרטונים הקצרים", "Back to the short videos"), final: false } }
+      : { end: { href: "#library", label: bi("חזרה לספריית המצגות", "Back to the deck library"), final: false } };
+  }
+  function nextLessonBlock(ref) {
+    const n = nextTarget(ref);
+    const link = (href, small, title) => `<a class="nextlesson__link" href="${href}" data-nextlesson><small>${small}</small><strong>${esc(title)}</strong></a>`;
+    let body = "";
+    if (n.next) body += link(n.next.href, bi("השיעור הבא", "Next lesson"), n.next.title) + `<p class="meta">${bi("המעבר לשיעור הבא אינו מסמן את השיעור הנוכחי כהושלם ואינו משנה תשובות או התקדמות.", "Moving to the next lesson does not mark this one complete and does not change your answers or progress.")}</p>`;
+    else if (n.back) body += link(n.back.href, bi("חזרה לשיעור", "Back to the lesson"), n.back.title);
+    else if (n.parents) body += `<p class="nextlesson__label"><strong>${bi("חלק מהשיעורים האלה", "Part of these lessons")}</strong></p>` + n.parents.map((p) => link(p.href, bi("לשיעור", "To the lesson"), p.title)).join("");
+    if (n.optional) body += link(n.optional.href, bi("להרחבה, לא חובה", "Optional extra"), n.optional.title);
+    if (n.end && !n.next) body += (n.end.final ? `<p class="nextlesson__end"><strong>${bi("סוף הרצף", "End of sequence")}</strong></p>` : "") + `<a class="nextlesson__link nextlesson__link--return" href="${n.end.href}" data-nextlesson><strong>${n.end.label}</strong></a>`;
+    return body ? `<nav class="nextlesson" aria-label="${bi("מעבר בין שיעורים", "Lesson navigation")}">${body}</nav>` : "";
+  }
+  // tools named in this lesson: explicit data per lesson, official product pages only; no mapping means nothing is shown
+  function toolsBlock(ref) {
+    const m = TL.lessonTools?.[ref];
+    const keys = m ? [...m.tools, ...(lang === "en" ? m.en || [] : [])] : [];
+    const items = [...new Set(keys)].map((k) => TL.registry[k]).filter(Boolean);
+    if (!items.length) return "";
+    return `<section class="tools-used" data-tools-used dir="${t().dir}" lang="${lang}">
+      <h2>${bi("כלים שמוצגים בשיעור", "Tools used in this lesson")}</h2>
+      <ul class="tools-used__list">${items.map((it) => `<li><a href="${esc(it.url)}" target="_blank" rel="noopener noreferrer">${esc(it.label)}<span class="sr"> ${bi("(נפתח בלשונית חדשה, אתר רשמי של הכלי)", "(opens in a new tab, official tool site)")}</span></a></li>`).join("")}</ul>
+      <p class="meta">${bi("קישורים לאתרים הרשמיים של הכלים. השיעור נשאר פתוח, ולא מתבצעות הרשמה או התקנה. זמינות התכונות והתוכניות משתנה לפי החשבון והמוסד. בתרגול אל תזינו מידע רגיש על לומדים.", "Links to the tools' official sites. This lesson stays open, and nothing is registered or installed. Feature and plan availability varies by account and institution. Do not enter sensitive learner data when practising.")}</p>
+    </section>`;
+  }
+
   function lessonExtras(w) {
     const list = listOf(w);
     const i = list.indexOf(w);
@@ -936,7 +995,7 @@
       }
       <nav class="pager">
         ${list[i - 1] ? `<a href="#${list[i - 1].id}"><small>${t().prev}</small><strong>${esc(L(list[i - 1], "title"))}</strong></a>` : "<span></span>"}
-        ${list[i + 1] ? `<a href="#${list[i + 1].id}"><small>${t().next}</small><strong>${esc(L(list[i + 1], "title"))}</strong></a>` : "<span></span>"}
+        <span></span>
       </nav>`;
   }
 
@@ -964,7 +1023,9 @@
         ${predictBox(w.id)}
         ${academyUnitOverview(w.id)}
         ${lessonMedia(w)}
+        ${toolsBlock(w.id)}
         ${taskBox(w.id)}
+        ${nextLessonBlock(w.id)}
         ${lessonExtras(w)}
       </article>`;
   }
@@ -993,7 +1054,9 @@
         </header>
         ${predictBox("v:" + v.id)}
         ${media}
+        ${toolsBlock("v:" + v.id)}
         ${taskBox("v:" + v.id)}
+        ${nextLessonBlock("v:" + v.id)}
         ${videoMore(v)}
       </article>`;
   }
@@ -1022,7 +1085,9 @@
         </header>
         ${predictBox("g:" + g.id)}
         ${media}
+        ${toolsBlock("g:" + g.id)}
         ${taskBox("g:" + g.id)}
+        ${nextLessonBlock("g:" + g.id)}
         ${gammaMore(g)}
       </article>`;
   }
@@ -1084,6 +1149,11 @@
     if (jumpToPractice) { jumpToPractice = false; setTimeout(() => document.getElementById("practice")?.scrollIntoView(), 0); }
     else if (view === "home" && h) document.getElementById(h)?.scrollIntoView();
     else window.scrollTo(0, 0);
+    if (focusHeading) {
+      focusHeading = false;
+      const head = app.querySelector("h1");
+      if (head) { head.tabIndex = -1; head.focus({ preventScroll: true }); }
+    }
 
     const navKey = lesson || h.startsWith("v-") || h.startsWith("g-") ? (stepInfo(lesson ? lesson.id : h.replace(/^v-/, "v:").replace(/^g-/, "g:")) ? "start" : "all") : MATERIAL_ROUTES.has(h) ? "all" : h;
     document.querySelectorAll("#nav a").forEach((a) => a.setAttribute("aria-current", a.getAttribute("href") === "#" + navKey ? "page" : "false"));
@@ -1251,6 +1321,7 @@
       });
       return;
     }
+    if (e.target.closest("[data-nextlesson]")) focusHeading = true; // plain link: the page change itself is left to the browser
     const dr = e.target.closest("[data-dc-reveal]");
     if (dr) {
       const key = dr.dataset.dcReveal, box = dr.closest("[data-pid]");
