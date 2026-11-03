@@ -14,6 +14,8 @@
   };
 
   const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+  // Hebrew has no Roman numerals in daily use: digits there, Roman numerals only in the English UI
+  const NUM = (i) => (lang === "en" ? ROMAN[i] : String(i + 1));
 
   // ---------- language ----------
   // Complete source translations are applied to content in memory; learner data stays untouched.
@@ -43,13 +45,13 @@
       },
       heroEyebrow: "פקולטה למורים סקרנים", heroH1a: "ללמוד ללמד עם", heroH1b: "בינה מלאכותית",
       heroLead: "מסורת של הוראה, עם מכונה שלא מתעייפת. שלוש שאלות קצרות, ואתם בדרך לתואר של כבוד – בקצב שלכם, על הקורס שלכם.",
-      heroCta: "הרשמה לסמסטר · 2 דקות", heroBrowse: "או לעיין בקטלוג המלא",
+      heroCta: "מתחילים את הסמסטר · 2 דקות", heroBrowse: "או לעיין בקטלוג המלא",
       portraitCaption: "פרופ׳ (כמעט) עידן שביט, ראש הקתדרה",
-      heroNote: "\"הרשמה\" זה רק בקריצה: אין חשבון, אין סיסמה ואין תשלום. עונים על שלוש שאלות קצרות ומקבלים מסלול למידה אישי, שנשמר בדפדפן שלכם בלבד.",
+      heroNote: "ההרשמה היא רק בקריצה: בלי חשבון, בלי סיסמה ובלי תשלום. שלוש שאלות קצרות, ומסלול אישי שנשמר בדפדפן שלכם בלבד.",
       examIntro: "שלוש שאלות קצרות, בלי ציון ובלי חשבון. התשובות רק קובעות איזה מסלול תקבלו, ואפשר לשנות אותן בכל רגע.",
       howTitle: "תקנון הלימודים",
       how: [["עונים על שלוש שאלות", "רמה, נושא, וכמה זמן יש לכם בשבוע."], ["לומדים ביחידות קצרות", "בכל פעם יחידה אחת, בגודל שמתאים לזמן שלכם."], ["מתרגלים על הקורס שלכם", "בכל צעד משימה קטנה של 5 דקות."]],
-      qCount: (i, n) => `שאלה ${ROMAN[i - 1]} מתוך ${ROMAN[n - 1]}`, back: "חזרה", exam: "בחינת קבלה",
+      qCount: (i, n) => `שאלה ${i} מתוך ${n}`, back: "חזרה", exam: "בחינת קבלה",
       q: ["מה רמת הניסיון שלך עם בינה מלאכותית?", "מה הכי חשוב לך ללמוד?", "כמה זמן יש לך ללמידה בשבוע?"],
       multiHint: "אפשר לבחור נושא אחד או כמה. המסלול יחבר ביניהם בלי לחזור על אותו חומר פעמיים.",
       goalsNext: (n) => n ? (n === 1 ? "המשך עם נושא אחד ←" : `המשך עם ${n} נושאים ←`) : "בחרו לפחות נושא אחד",
@@ -122,9 +124,9 @@
       },
       heroEyebrow: "Faculty of Curious Teachers", heroH1a: "Learning to teach with", heroH1b: "artificial intelligence",
       heroLead: "A tradition of teaching, with a machine that never tires. Three short questions start your personal learning path, at your pace, using your own course.",
-      heroCta: "Enrol for the semester · 2 min", heroBrowse: "or browse the full catalogue",
+      heroCta: "Start the semester · 2 min", heroBrowse: "or browse the full catalogue",
       portraitCaption: "Prof. (almost) Idan Shavit, Head of Chair",
-      heroNote: "\"Enrol\" is tongue-in-cheek: no account, no password, no payment. Answer three short questions and get a personal learning path, saved only in your browser.",
+      heroNote: "The \"enrolment\" is tongue-in-cheek: no account, no password, no payment. Answer three short questions and get a personal learning path, saved only in your browser.",
       examIntro: "Three short questions, no grade and no account. Your answers only decide which path you get, and you can change them any time.",
       howTitle: "Course regulations",
       how: [["Answer three questions", "Your level, topic and weekly time."], ["Learn in short units", "One unit at a time, sized to your time."], ["Practise on your own course", "A 5-minute task at every step."]],
@@ -680,11 +682,11 @@
           .map(
             (o, oi) => multi
               ? `<button type="button" class="choice" data-pick-goal="${o.id}" aria-pressed="${goalPick.includes(o.id)}">
-              <span class="choice__num">${goalPick.includes(o.id) ? "✓" : ROMAN[oi]}</span>
+              <span class="choice__num">${goalPick.includes(o.id) ? "✓" : NUM(oi)}</span>
               <span class="choice__label">${esc(o.label)}</span>
             </button>`
               : `<button type="button" class="choice" data-set="${key}" data-val="${o.id}">
-              <span class="choice__num">${ROMAN[oi]}</span>
+              <span class="choice__num">${NUM(oi)}</span>
               <span class="choice__label">${esc(o.label)}</span>${o.hint ? `<span class="choice__hint">${esc(o.hint)}</span>` : ""}
             </button>`
           )
@@ -755,19 +757,19 @@
       <h2 class="small-h">${tr("למסיימים תוענק דיפלומה חגיגית")}</h2>
       <div class="dp-picker" role="group" aria-label="${tr("רמת הדיפלומה")}">${J.levels.map((l) => `<button type="button" class="btn btn--ghost" data-dp-level="${l.id}" aria-pressed="${l.id === sampleLevel}">${esc(l.label)}</button>`).join("")}</div>
       <div data-dp-sample>${Diploma.html(sampleLevel, tr("דנה לוי, דוגמה"), [J.goals[0].short])}</div>
-      <p class="dp-note">${tr("דוגמה להמחשה. הדיפלומה האישית נוצרת במכשיר שלכם, ללא חשבון וללא שליחת נתונים.")}</p>
+      <p class="dp-note">${tr("דוגמה להמחשה. זו דיפלומה פנימית של האתר, לא תואר ולא הסמכה אקדמית. היא נוצרת במכשיר שלכם, ללא חשבון וללא שליחת נתונים.")}</p>
     </section>`;
   }
   const diplomaTopics = () => myGoals().map((g) => g.short || g.label);
 
   // ---------- pages ----------
-  function aboutSection() {
+  function aboutSection(skipPhoto) {
     const A = S.about;
     return `
       <section class="section about" id="about">
         ${head(t().aboutEyebrow, A.name)}
-        <div class="about__body">
-          <img class="about__photo" src="${A.photo}" alt="${esc(A.name)}" width="160" height="160">
+        <div class="about__body${skipPhoto ? " about__body--nophoto" : ""}">
+          ${skipPhoto ? "" : `<img class="about__photo" src="${A.photo}" alt="${esc(A.name)}" width="160" height="160">`}
           <div class="about__text">
             <p class="about__role">${esc(L(A, "role"))}</p>
             ${(L(A, "paragraphs") || []).map((p) => `<p>${esc(p)}</p>`).join("")}
@@ -815,10 +817,10 @@
         </section>
         <section class="section">
           <h2 class="small-h">${t().howTitle}</h2>
-          <ol class="how">${t().how.map(([a, b], i) => `<li><span class="how__n">${ROMAN[i]}</span><strong>${a}</strong><span>${b}</span></li>`).join("")}</ol>
+          <ol class="how">${t().how.map(([a, b], i) => `<li><span class="how__n">${NUM(i)}</span><strong>${a}</strong><span>${b}</span></li>`).join("")}</ol>
         </section>
         ${diplomaSample()}
-        ${aboutSection()}`;
+        ${aboutSection(true)}`;
     }
     const nxt = nextStep();
     const units = pathUnits();
@@ -1157,6 +1159,9 @@
 
     const navKey = lesson || h.startsWith("v-") || h.startsWith("g-") ? (stepInfo(lesson ? lesson.id : h.replace(/^v-/, "v:").replace(/^g-/, "g:")) ? "start" : "all") : MATERIAL_ROUTES.has(h) ? "all" : h;
     document.querySelectorAll("#nav a").forEach((a) => a.setAttribute("aria-current", a.getAttribute("href") === "#" + navKey ? "page" : "false"));
+    // a first-time visitor has no portfolio yet: hide that link until a learning path exists
+    const pfLink = document.querySelector('#nav a[href="#portfolio"]');
+    if (pfLink) pfLink.hidden = !hasPath() && h !== "portfolio";
     closeMenu();
     closeSearch();
     const h1 = (app.querySelector("h1") || app.querySelector("h2"))?.textContent;

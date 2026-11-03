@@ -6,7 +6,7 @@ body { background: var(--desk); font-size: var(--step-0); line-height: 1.7; }
 h1, h2, h3 { color: var(--ink); font-weight: 900; }
 h3 { font-weight: 700; }
 .wine { color: var(--wine); font-style: normal; }
-em.wine { font-style: italic; }
+em.wine { font-style: normal; }
 a { color: var(--navy); }
 .eyebrow { font-family: var(--f-body); font-weight: 700; font-size: 0.92rem; letter-spacing: 0.22em; color: var(--wine); }
 .mark { background: none; padding: 0; }
@@ -168,6 +168,7 @@ a { color: var(--navy); }
 .poster::after { color: var(--gold-soft); opacity: .18; }
 .about__body { background: var(--card); border-radius: 28px; }
 .about__photo { border-color: var(--gold); border-radius: 999px 999px 14px 14px; height: 190px; object-fit: cover; }
+.about__body--nophoto { grid-template-columns: minmax(0, 1fr); }
 
 .footer { border-top: 4px double var(--ink); margin-inline: var(--gutter); }
 .footer__in { padding-inline: 0; }

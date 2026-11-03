@@ -1243,7 +1243,7 @@
   "למסיימים תוענק דיפלומה חגיגית": "Complete your path and receive a celebratory diploma",
   "רמת הדיפלומה": "Diploma level",
   "דנה לוי, דוגמה": "Jamie Taylor, example",
-  "דוגמה להמחשה. הדיפלומה האישית נוצרת במכשיר שלכם, ללא חשבון וללא שליחת נתונים.": "Illustrative example. Your personal diploma is created on your device, with no account and no data sent.",
+  "דוגמה להמחשה. זו דיפלומה פנימית של האתר, לא תואר ולא הסמכה אקדמית. היא נוצרת במכשיר שלכם, ללא חשבון וללא שליחת נתונים.": "Illustrative example. This is an internal diploma issued by this site, not a degree or an academic accreditation. It is created on your device, with no account and no data sent.",
   "ההקלטה הקודמת ופרקיה, להעמקה": "Previous recording and chapters, for further exploration",
   "פרקי ההקלטה וחותמות הזמן להלן מתייחסים למקור הישן בלבד.": "The chapters and timestamps below refer only to the previous recording.",
   "עיקרי הדברים": "Key ideas",
